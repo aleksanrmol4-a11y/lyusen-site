@@ -206,22 +206,22 @@ p  { margin: 0; }
   line-height: 1.5;
 }
 
-/* Marquee ribbon — own band between sections, full-bleed */
+/* Marquee ribbon — sits between sections, allowed to bleed into both */
 .marquee-band {
   position: relative;
-  margin: -56px 0 -56px;
-  padding: 60px 0;
-  overflow: hidden;
-  z-index: 5;
+  height: 0;
+  z-index: 6;
   pointer-events: none;
 }
 .marquee {
-  position: relative;
-  margin: 0 -10vw;
+  position: absolute;
+  left: -10vw; right: -10vw;
+  top: -32px;
   padding: 18px 0;
   background: var(--grad-marquee);
   transform: rotate(-3.5deg);
-  box-shadow: 0 10px 30px rgba(255,130,30,.30), 0 1px 0 rgba(255,255,255,.45) inset;
+  transform-origin: center;
+  box-shadow: 0 12px 36px rgba(255,130,30,.32), 0 1px 0 rgba(255,255,255,.45) inset;
   overflow: hidden;
   white-space: nowrap;
   font-family: 'Unbounded', 'Manrope', sans-serif;
@@ -271,7 +271,7 @@ p  { margin: 0; }
 /* ============================
    Services
    ============================ */
-.services { padding: 140px 0 64px; }
+.services { padding: 110px 0 64px; position: relative; z-index: 1; }
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 
 .service-card {
