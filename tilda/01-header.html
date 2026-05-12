@@ -1,47 +1,94 @@
 <!--
   Шапка с лого, меню, иконками TG/VK и кнопкой.
-  Вставлять: T123 «HTML-блок» сразу после base-styles.
+  Вставлять: T123 «HTML-блок» сразу после base-styles (или первым на странице).
   Прилипает наверху при скролле автоматически.
+
+  ВАЖНО: блок самодостаточный — цвета прописаны напрямую (не зависит от 00-base-styles).
+  Если base-styles не подключён, шапка всё равно будет выглядеть правильно.
 -->
 <style>
   .lc-header {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(255,246,232,.85);
+    background: rgba(255,246,232,.88) !important;
     backdrop-filter: saturate(180%) blur(14px);
     -webkit-backdrop-filter: saturate(180%) blur(14px);
-    border-bottom: 1px solid var(--lc-line);
+    border-bottom: 1px solid #F1E7D6;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  .lc-header-inner { display: flex; align-items: center; justify-content: space-between; height: 80px; gap: 28px; }
-  .lc-logo { display: flex; align-items: center; }
-  .lc-logo img { width: 64px; height: 64px; filter: drop-shadow(0 6px 14px rgba(255,107,28,.25)); transition: transform .2s; }
-  .lc-logo:hover img { transform: scale(1.06); }
-  .lc-nav { display: flex; align-items: center; gap: 32px; }
-  .lc-nav a { color: var(--lc-ink-2); font-weight: 500; font-size: .98rem; transition: color .15s; }
-  .lc-nav a:hover { color: var(--lc-orange); }
-  .lc-h-socials { display: flex; align-items: center; gap: 10px; }
-  .lc-h-social { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--lc-line); transition: transform .15s, box-shadow .2s, background .2s, color .2s; color: var(--lc-ink-2); }
-  .lc-h-social svg { width: 18px; height: 18px; }
-  .lc-h-social-tg:hover { background: #229ED9; color: #fff; border-color: #229ED9; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(34,158,217,.35); }
-  .lc-h-social-vk:hover { background: #0077FF; color: #fff; border-color: #0077FF; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,119,255,.35); }
-  .lc-menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 28px; height: 22px; padding: 0; background: none; border: 0; }
-  .lc-menu-toggle span { display: block; height: 2px; width: 100%; background: var(--lc-ink); border-radius: 2px; transition: transform .25s, opacity .2s; }
+  .lc-header *, .lc-header *::before, .lc-header *::after { box-sizing: border-box; }
+  .lc-header-inner { display: flex; align-items: center; justify-content: space-between; height: 80px; gap: 28px; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-header .lc-logo { display: flex; align-items: center; text-decoration: none; }
+  .lc-header .lc-logo img { width: 64px; height: 64px; display: block; filter: drop-shadow(0 6px 14px rgba(255,107,28,.25)); transition: transform .2s; }
+  .lc-header .lc-logo:hover img { transform: scale(1.06); }
+
+  /* МЕНЮ — критично, чтобы Тильда не перебивала цвет */
+  .lc-header .lc-nav { display: flex; align-items: center; gap: 32px; }
+  .lc-header .lc-nav a {
+    color: #2A2A33 !important;
+    font-weight: 500 !important;
+    font-size: .98rem !important;
+    text-decoration: none !important;
+    transition: color .15s, background .15s !important;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: transparent;
+  }
+  .lc-header .lc-nav a:hover {
+    color: #15151B !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(20,20,30,.08);
+  }
+
+  .lc-header .lc-h-socials { display: flex; align-items: center; gap: 10px; }
+  .lc-header .lc-h-social {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #ffffff !important;
+    border: 1px solid #F1E7D6;
+    transition: transform .15s, box-shadow .2s, background .2s, color .2s;
+    color: #2A2A33 !important;
+    text-decoration: none !important;
+  }
+  .lc-header .lc-h-social svg { width: 18px; height: 18px; display: block; }
+  .lc-header .lc-h-social-tg:hover { background: #229ED9 !important; color: #ffffff !important; border-color: #229ED9; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(34,158,217,.35); }
+  .lc-header .lc-h-social-vk:hover { background: #0077FF !important; color: #ffffff !important; border-color: #0077FF; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,119,255,.35); }
+
+  /* CTA-кнопка */
+  .lc-header .lc-header-cta {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #15151B !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: .92rem;
+    transition: background .15s, transform .15s;
+    white-space: nowrap;
+  }
+  .lc-header .lc-header-cta:hover { background: #000 !important; transform: translateY(-1px); }
+
+  /* Бургер для мобильного */
+  .lc-header .lc-menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 28px; height: 22px; padding: 0; background: none; border: 0; cursor: pointer; }
+  .lc-header .lc-menu-toggle span { display: block; height: 2px; width: 100%; background: #15151B; border-radius: 2px; transition: transform .25s, opacity .2s; }
   .lc-header.is-open .lc-menu-toggle span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
   .lc-header.is-open .lc-menu-toggle span:nth-child(2) { opacity: 0; }
   .lc-header.is-open .lc-menu-toggle span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
   @media (max-width: 1024px) { .lc-header-inner { height: 72px; gap: 16px; } }
-  @media (max-width: 860px) { .lc-h-socials { gap: 6px; } .lc-h-social { width: 34px; height: 34px; } }
+  @media (max-width: 860px) { .lc-header .lc-h-socials { gap: 6px; } .lc-header .lc-h-social { width: 34px; height: 34px; } }
   @media (max-width: 720px) {
-    .lc-nav, .lc-h-socials, .lc-header-cta { display: none; }
-    .lc-menu-toggle { display: flex; }
+    .lc-header .lc-nav, .lc-header .lc-h-socials, .lc-header .lc-header-cta { display: none; }
+    .lc-header .lc-menu-toggle { display: flex; }
     .lc-header-inner { height: 64px; }
-    .lc-header.is-open .lc-nav { display: flex; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; background: #fff; border-bottom: 1px solid var(--lc-line); padding: 8px 0; }
-    .lc-header.is-open .lc-nav a { padding: 14px 24px; border-bottom: 1px solid var(--lc-line); }
+    .lc-header.is-open .lc-nav { display: flex; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0; background: #fff; border-bottom: 1px solid #F1E7D6; padding: 8px 0; }
+    .lc-header.is-open .lc-nav a { padding: 14px 24px !important; border-bottom: 1px solid #F1E7D6; border-radius: 0; }
     .lc-header.is-open .lc-nav a:last-child { border-bottom: 0; }
   }
 </style>
 
-<header class="lc-section lc-header" id="lc-top">
-  <div class="lc-container lc-header-inner">
+<header class="lc-header" id="lc-top">
+  <div class="lc-header-inner">
     <a href="#lc-top" class="lc-logo" aria-label="Люсъен">
       <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="Люсъен">
     </a>
@@ -60,7 +107,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.16 18.21c-5.45 0-8.97-3.83-9.12-10.18h2.75c.1 4.66 2.27 6.6 3.89 7v-7h2.62v3.91c1.57-.18 3.2-2.04 3.76-3.91h2.59c-.43 2.3-2.21 4.16-3.47 4.93 1.26.62 3.28 2.24 4.06 5.16h-2.84c-.61-1.94-2.11-3.45-4.1-3.66v3.66z"/></svg>
       </a>
     </div>
-    <a class="lc-btn lc-btn-dark lc-btn-sm lc-header-cta" href="#lc-contact">Обсудить проект</a>
+    <a class="lc-header-cta" href="#lc-contact">Обсудить проект</a>
     <button class="lc-menu-toggle" aria-label="Меню"><span></span><span></span><span></span></button>
   </div>
 </header>
