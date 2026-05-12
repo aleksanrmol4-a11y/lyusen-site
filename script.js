@@ -126,7 +126,7 @@ if (fabMenu) {
 
 if (fabModal) {
   fabModal.addEventListener('click', (e) => {
-    if (e.target.dataset.close === '1') setModalOpen(false);
+    if (e.target.closest('[data-close="1"]')) setModalOpen(false);
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !fabModal.hidden) setModalOpen(false);
@@ -134,8 +134,9 @@ if (fabModal) {
 }
 
 // shared submit handler (reused for main form and modal form)
+// returns true if the request reached Telegram successfully, false otherwise
 async function submitLeadForm(formEl, btnEl, statusBox) {
-  if (!formEl.reportValidity()) return;
+  if (!formEl.reportValidity()) return false;
 
   const data = new FormData(formEl);
   const name = (data.get('name') || '').toString().trim();
@@ -151,7 +152,7 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
 
   if (!name || !contact || !message) {
     setBox('err', 'Заполните все поля.');
-    return;
+    return false;
   }
 
   const text =
@@ -193,13 +194,16 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     if (!json.ok) throw new Error(json.description || 'Telegram API error');
     setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
     formEl.reset();
+    btnEl.classList.remove('is-loading');
+    btnEl.disabled = false;
+    return true;
   } catch (err) {
     clearTimeout(timeoutId);
     console.error(err);
     setBox('err', fallbackHtml);
-  } finally {
     btnEl.classList.remove('is-loading');
     btnEl.disabled = false;
+    return false;
   }
 }
 
@@ -207,9 +211,12 @@ const fabForm = document.getElementById('fabForm');
 const fabSubmitBtn = document.getElementById('fabSubmitBtn');
 const fabFormStatus = document.getElementById('fabFormStatus');
 if (fabForm) {
-  fabForm.addEventListener('submit', (e) => {
+  fabForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    submitLeadForm(fabForm, fabSubmitBtn, fabFormStatus);
+    const ok = await submitLeadForm(fabForm, fabSubmitBtn, fabFormStatus);
+    if (ok) {
+      setTimeout(() => setModalOpen(false), 1800);
+    }
   });
 }
 
