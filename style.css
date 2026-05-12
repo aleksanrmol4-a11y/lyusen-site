@@ -748,6 +748,7 @@ p  { margin: 0; }
   padding: 20px;
   animation: fab-modal-in .2s ease-out;
 }
+.fab-modal[hidden], .fab-menu[hidden] { display: none; }
 @keyframes fab-modal-in { from { opacity: 0; } to { opacity: 1; } }
 .fab-modal-backdrop {
   position: absolute; inset: 0;
