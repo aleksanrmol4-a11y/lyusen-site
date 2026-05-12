@@ -738,6 +738,7 @@ p  { margin: 0; }
 .fab-form svg   { background: var(--orange); }
 .fab-tg svg     { background: #229ED9; }
 .fab-wa svg     { background: #25D366; }
+.fab-vk svg     { background: #0077FF; }
 .fab-call svg   { background: var(--ink); }
 
 /* Modal */
@@ -797,17 +798,38 @@ p  { margin: 0; }
 /* ============================
    Responsive
    ============================ */
+
+/* Planshet, portret (≤1024px): большинство 2-колоночных layout'ов на 1 колонку, сетки 3→2 */
 @media (max-width: 1024px) {
-  .service-grid, .case-grid { grid-template-columns: repeat(2, 1fr); }
+  .header-inner { height: 72px; gap: 16px; }
+  .service-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .case-grid    { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
   .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 48px; }
   .about-visual { max-width: 420px; margin: 0 auto; }
+  .about-stats  { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .services { padding: 80px 0 48px; }
+  .about, .pricing, .cases, .contact { padding: 72px 0; }
+  .section-head { margin-bottom: 40px; }
+  .stat-card { padding: 22px 22px 20px; }
+  .pricing-group { margin-bottom: 28px; }
 }
 
+/* Planshet, ≤860 — services и кейсы становятся 1-колоночными для лучшей читаемости */
+@media (max-width: 860px) {
+  .service-grid { grid-template-columns: 1fr; }
+  .case-grid    { grid-template-columns: repeat(2, 1fr); }
+  .about-stats  { grid-template-columns: 1fr; gap: 12px; }
+  .about { padding: 60px 0 80px; }
+}
+
+/* Mobile (≤720px) */
 @media (max-width: 720px) {
+  :root { --gutter: 18px; }
   .nav, .header-cta { display: none; }
   .menu-toggle { display: flex; }
+  .header-inner { height: 64px; }
   .site-header.menu-open .nav {
-    display: flex; position: absolute; top: 80px; left: 0; right: 0;
+    display: flex; position: absolute; top: 64px; left: 0; right: 0;
     flex-direction: column; align-items: stretch; gap: 0;
     background: #fff; border-bottom: 1px solid var(--line);
     padding: 8px 0;
@@ -815,12 +837,65 @@ p  { margin: 0; }
   .site-header.menu-open .nav a { padding: 14px 24px; border-bottom: 1px solid var(--line); }
   .site-header.menu-open .nav a:last-child { border-bottom: 0; }
 
-  .service-grid, .case-grid { grid-template-columns: 1fr; }
-  .services-head { flex-direction: column; align-items: flex-start; }
-  .hero { padding-top: 56px; }
-  .hero-inner { padding: 20px 0 48px; }
-  .lead-form { padding: 28px 22px; }
-  .contact-label { width: 96px; }
+  .case-grid { grid-template-columns: 1fr; }
+  .services-head { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .services-head .all-link { align-self: flex-start; }
+
+  .hero { padding: 48px 0 110px; }
+  .hero-inner { padding: 8px 0 0; }
+  .hero h1 { margin-bottom: 20px; }
+  .hero-sub { margin-bottom: 28px; }
+  .hero-fade { height: 110px; }
+  .btn-lg { padding: 16px 24px; font-size: 1rem; }
+
+  .lead-form { padding: 24px 18px; }
+  .contact-list li { gap: 10px; padding: 12px 0; }
+  .contact-label { width: 88px; font-size: .86rem; }
   .marquee span { font-size: .92rem; }
-  .marquee { margin: 0 -10%; }
+  .marquee { left: -20vw; right: -20vw; padding: 14px 0; }
+  .marquee-track { gap: 28px; }
+
+  .services { padding: 64px 0 36px; }
+  .about    { padding: 56px 0 64px; }
+  .pricing  { padding: 56px 0; }
+  .cases    { padding: 56px 0; }
+  .contact  { padding: 56px 0; }
+  .site-footer { padding: 28px 0; }
+  .footer-inner { flex-direction: column; text-align: center; gap: 12px; }
+
+  .service-card { padding: 26px 22px 70px; min-height: 230px; }
+  .sc-cta { right: 22px; bottom: 22px; padding: 8px 14px; font-size: .88rem; }
+  .sc-icon { width: 54px; height: 54px; }
+
+  .case-card { padding: 88px 22px 24px; min-height: 200px; }
+  .case-avatar { width: 52px; height: 52px; top: 14px; right: 14px; }
+  .case-tag { top: 16px; left: 16px; padding: 5px 10px; font-size: .68rem; }
+
+  .price-list li {
+    padding: 14px 36px 14px 18px;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .price-list li::after { right: 14px; font-size: 1rem; opacity: 1; transform: translate(0, -50%); }
+  .price-list span { font-size: .95rem; }
+  .price-list b { font-size: .9rem; }
+  .pricing-group h3 { font-size: 1.1rem; }
+
+  .stat-card { padding: 18px 18px 16px; }
+  .stat-card strong { font-size: 2.2rem; }
+  .stat-icon { width: 42px; height: 42px; border-radius: 12px; margin-bottom: 12px; }
+  .stat-icon svg { width: 22px; height: 22px; }
+
+  .about-text p { font-size: .98rem; }
+  h2 { letter-spacing: -.02em; }
+}
+
+/* Very narrow ≤420 — last guard */
+@media (max-width: 420px) {
+  .hero h1 { font-size: 2.2rem; }
+  .case-grid { gap: 14px; }
+  .service-card { padding: 22px 18px 64px; }
+  .lead-form h3 { font-size: 1.3rem; }
+  .fab-toggle { width: 52px; height: 52px; }
+  .fab-toggle svg { width: 22px; height: 22px; }
+  .fab-wrap { right: 14px; bottom: 14px; }
 }
