@@ -119,6 +119,27 @@ p  { margin: 0; }
 .nav a { color: var(--ink-2); font-weight: 500; font-size: .98rem; transition: color .15s; }
 .nav a:hover { color: var(--orange); }
 
+.header-socials { display: flex; align-items: center; gap: 10px; }
+.header-social {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  transition: transform .15s, box-shadow .2s, background .2s, color .2s;
+  color: var(--ink-2);
+}
+.header-social svg { width: 18px; height: 18px; }
+.header-social-tg:hover { background: #229ED9; color: #fff; border-color: #229ED9; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(34,158,217,.35); }
+.header-social-vk:hover { background: #0077FF; color: #fff; border-color: #0077FF; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,119,255,.35); }
+@media (max-width: 860px) {
+  .header-socials { gap: 6px; }
+  .header-social { width: 34px; height: 34px; }
+}
+@media (max-width: 720px) {
+  .header-socials { display: none; }
+}
+
 .menu-toggle {
   display: none;
   flex-direction: column; justify-content: space-between;

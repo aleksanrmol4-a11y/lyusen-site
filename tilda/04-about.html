@@ -1,0 +1,73 @@
+<!--
+  Блок «О нас»: 3 параграфа + плитки статов (7 дней / 5 / 30+).
+-->
+<style>
+  .lc-about { position: relative; padding: 96px 0 110px; background: var(--lc-bg-cream); overflow: hidden; }
+  .lc-about-bg { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(255,122,26,.10) 1.2px, transparent 1.2px); background-size: 28px 28px; mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%); }
+  .lc-about-blob { position: absolute; border-radius: 50%; filter: blur(60px); }
+  .lc-ab-1 { width: 360px; height: 360px; top: -80px; left: -120px; background: rgba(255,196,46,.40); }
+  .lc-ab-2 { width: 420px; height: 420px; bottom: -160px; right: -100px; background: rgba(255,122,26,.30); }
+  .lc-ab-3 { width: 260px; height: 260px; top: 40%; left: 45%; background: rgba(255,160,176,.28); }
+  .lc-about-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; }
+  .lc-about-text h2 { font-size: clamp(2rem, 4.4vw, 3.6rem); margin-bottom: 22px; }
+  .lc-about-text p { color: var(--lc-ink-2); margin-bottom: 18px; line-height: 1.6; max-width: 540px; }
+  .lc-about-text p strong { font-weight: 800; background: var(--lc-grad-orange); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: .02em; }
+  .lc-about-visual { position: relative; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
+  .lc-visual-blob { position: absolute; border-radius: 50%; filter: blur(20px); }
+  .lc-vb-1 { width: 60%; height: 60%; background: rgba(255,122,26,.45); top: 5%; left: 8%; }
+  .lc-vb-2 { width: 50%; height: 50%; background: rgba(255,196,46,.55); bottom: 8%; right: 5%; }
+  .lc-vb-3 { width: 40%; height: 40%; background: rgba(255,140,128,.4); top: 35%; right: 25%; }
+  .lc-visual-logo { position: relative; z-index: 1; width: 56%; height: auto; filter: drop-shadow(0 24px 48px rgba(255,107,28,.4)); }
+
+  .lc-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 64px; }
+  .lc-stat-card { position: relative; background: #fff; border-radius: var(--lc-r-lg); padding: 28px; box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 14px 40px rgba(255,107,28,.12); border: 1px solid rgba(255,255,255,.8); overflow: hidden; transition: transform .2s, box-shadow .25s; }
+  .lc-stat-card::before { content: ""; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: var(--lc-grad-orange); opacity: .10; }
+  .lc-stat-card:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 20px 50px rgba(255,107,28,.22); }
+  .lc-stat-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--lc-grad-orange); border-radius: 14px; color: #fff; margin-bottom: 18px; box-shadow: 0 6px 18px rgba(255,107,28,.32); }
+  .lc-stat-icon svg { width: 26px; height: 26px; }
+  .lc-stat-card strong { display: block; font-family: 'Unbounded','Manrope',sans-serif; font-size: clamp(2.4rem, 4.6vw, 3.4rem); font-weight: 800; line-height: 1; background: var(--lc-grad-orange); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
+  .lc-stat-card span { color: var(--lc-ink-2); font-size: 1rem; font-weight: 600; }
+
+  @media (max-width: 1024px) { .lc-about-inner { grid-template-columns: 1fr; gap: 48px; } .lc-about-visual { max-width: 420px; margin: 0 auto; } .lc-about { padding: 72px 0; } .lc-stats { gap: 14px; } }
+  @media (max-width: 860px) { .lc-stats { grid-template-columns: 1fr; gap: 12px; } .lc-about { padding: 60px 0 80px; } }
+  @media (max-width: 720px) { .lc-about { padding: 56px 0 64px; } .lc-stat-card { padding: 18px; } .lc-stat-card strong { font-size: 2.2rem; } .lc-stat-icon { width: 42px; height: 42px; border-radius: 12px; margin-bottom: 12px; } .lc-stat-icon svg { width: 22px; height: 22px; } .lc-about-text p { font-size: .98rem; } }
+</style>
+
+<section id="lc-about" class="lc-section lc-about">
+  <div class="lc-about-bg" aria-hidden="true">
+    <span class="lc-about-blob lc-ab-1"></span>
+    <span class="lc-about-blob lc-ab-2"></span>
+    <span class="lc-about-blob lc-ab-3"></span>
+  </div>
+  <div class="lc-container lc-about-inner">
+    <div class="lc-about-text">
+      <span class="lc-eyebrow">О нас</span>
+      <h2>Не агентство ради<br>освоения бюджета</h2>
+      <p><strong>ЛЮСЪЕН</strong> — маркетинговое агентство полного цикла. Мы закрываем весь спектр задач, необходимых для устойчивого роста бизнеса: от маркетинговой стратегии и платного продвижения до разработки сайтов, контент-маркетинга и автоматизации процессов.</p>
+      <p>Под каждый проект формируется выделенная команда специалистов — SMM-менеджер, таргетолог, дизайнер, копирайтер, аналитик. Вы взаимодействуете напрямую с исполнителями, без дополнительных управленческих звеньев и постоянных издержек на содержание штата.</p>
+      <p>Работаем на результат, закреплённый в KPI. Если текущий подход не даёт целевых показателей — мы пересматриваем стратегию.</p>
+    </div>
+    <div class="lc-about-visual" aria-hidden="true">
+      <div class="lc-visual-blob lc-vb-1"></div>
+      <div class="lc-visual-blob lc-vb-2"></div>
+      <div class="lc-visual-blob lc-vb-3"></div>
+      <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="" class="lc-visual-logo">
+    </div>
+  </div>
+  <div class="lc-container">
+    <div class="lc-stats">
+      <div class="lc-stat-card">
+        <div class="lc-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <strong>7&nbsp;дней</strong><span>от старта до запуска</span>
+      </div>
+      <div class="lc-stat-card">
+        <div class="lc-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.5 8.6 21.5 9 16 13.6l1.8 7L12 17l-5.8 3.6L8 13.6 2.5 9l7-.4z"/></svg></div>
+        <strong>5</strong><span>направлений работы</span>
+      </div>
+      <div class="lc-stat-card">
+        <div class="lc-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19.5 7"/></svg></div>
+        <strong>30+</strong><span>услуг в прайсе</span>
+      </div>
+    </div>
+  </div>
+</section>

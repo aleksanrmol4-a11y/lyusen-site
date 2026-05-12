@@ -1,0 +1,51 @@
+<!--
+  Hero-секция + marquee-лента «БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ».
+  Вставлять: T123 «HTML-блок» после шапки.
+-->
+<style>
+  .lc-hero { position: relative; padding: 80px 0 140px; background: var(--lc-grad-hero); overflow: hidden; }
+  .lc-hero::before { content: ""; position: absolute; width: 520px; height: 520px; border-radius: 50%; top: -120px; right: -160px; background: radial-gradient(circle, rgba(255,180,130,.22), transparent 70%); filter: blur(24px); pointer-events: none; z-index: 0; }
+  .lc-hero-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; background: linear-gradient(180deg, rgba(255,246,232,0) 0%, var(--lc-bg) 100%); pointer-events: none; z-index: 1; }
+  .lc-hero-inner { position: relative; z-index: 2; max-width: 880px; padding: 24px 0 0; }
+  .lc-hero h1 { font-size: clamp(2.6rem, 6.4vw, 5.4rem); margin-bottom: 28px; }
+  .lc-hero h1 .lc-grad { background: var(--lc-grad-yellow); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lc-hero-sub { font-size: clamp(1.05rem, 1.6vw, 1.22rem); color: var(--lc-ink); max-width: 580px; margin-bottom: 40px; line-height: 1.5; font-weight: 500; }
+  .lc-hero-decor { position: absolute; right: 4%; top: 50%; width: clamp(220px, 28vw, 380px); z-index: 1; pointer-events: none; filter: drop-shadow(0 24px 48px rgba(255,107,28,.35)); animation: lc-float 6s ease-in-out infinite; transform-origin: center; }
+  @keyframes lc-float { 0%,100% { transform: translateY(-50%) rotate(-4deg); } 50% { transform: translateY(calc(-50% - 14px)) rotate(4deg); } }
+  @media (max-width: 1080px) { .lc-hero-decor { opacity: .35; right: -40px; width: 320px; } }
+  @media (max-width: 720px) { .lc-hero-decor { display: none; } .lc-hero { padding: 48px 0 110px; } .lc-hero-fade { height: 110px; } }
+
+  .lc-marquee-band { position: relative; height: 0; z-index: 6; pointer-events: none; }
+  .lc-marquee { position: absolute; left: -10vw; right: -10vw; top: -32px; padding: 18px 0; background: var(--lc-grad-marquee); transform: rotate(-3.5deg); transform-origin: center; box-shadow: 0 12px 36px rgba(255,130,30,.32), 0 1px 0 rgba(255,255,255,.45) inset; overflow: hidden; white-space: nowrap; font-family: 'Unbounded','Manrope',sans-serif; }
+  .lc-marquee-track { display: inline-flex; gap: 40px; align-items: center; animation: lc-marquee 26s linear infinite; padding-right: 40px; will-change: transform; }
+  .lc-marquee-track span { display: inline-block; font-weight: 800; font-size: 1.15rem; letter-spacing: .04em; color: #2A1700; }
+  .lc-marquee-track .lc-star { font-size: 1.4rem; color: #fff; opacity: .9; }
+  @keyframes lc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (max-width: 720px) { .lc-marquee-track span { font-size: .92rem; } .lc-marquee { left: -20vw; right: -20vw; padding: 14px 0; } .lc-marquee-track { gap: 28px; } }
+</style>
+
+<section class="lc-section lc-hero">
+  <div class="lc-container lc-hero-inner">
+    <h1>Маркетинг, который<br><span class="lc-grad">бьёт в цель</span></h1>
+    <p class="lc-hero-sub">Люсъен — агентство SMM и интернет-маркетинга. Создаём контент, запускаем рекламу и выстраиваем стратегии, которые приносят клиентов и продажи.</p>
+    <a class="lc-btn lc-btn-primary lc-btn-lg lc-btn-arrow" href="#lc-contact">
+      <span>Получить стратегию</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+  <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="" class="lc-hero-decor" aria-hidden="true">
+  <div class="lc-hero-fade" aria-hidden="true"></div>
+</section>
+
+<div class="lc-section lc-marquee-band" aria-hidden="true">
+  <div class="lc-marquee">
+    <div class="lc-marquee-track">
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+    </div>
+  </div>
+</div>

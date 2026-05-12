@@ -1,0 +1,65 @@
+<!--
+  Кейсы: 5 карточек с лого-аватаркой в правом верхнем углу.
+  Чтобы заменить лого — обнови src у нужного <img>.
+-->
+<style>
+  .lc-cases { padding: 96px 0; background: var(--lc-bg-cream); }
+  .lc-case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
+  .lc-case-card { position: relative; padding: 100px 26px 28px; background: #fff; border-radius: var(--lc-r-xl); min-height: 240px; display: flex; flex-direction: column; justify-content: flex-end; transition: transform .2s, box-shadow .25s; overflow: hidden; }
+  .lc-case-card::before { content: ""; position: absolute; top: -30px; right: -30px; width: 160px; height: 160px; background: var(--lc-grad-orange); border-radius: 50%; opacity: .14; }
+  .lc-case-card:hover { transform: translateY(-4px); box-shadow: var(--lc-shadow-lg); }
+  .lc-case-tag { position: absolute; top: 22px; left: 22px; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--lc-orange); background: rgba(255,122,26,.12); padding: 6px 12px; border-radius: var(--lc-r-pill); z-index: 2; }
+  .lc-case-avatar { position: absolute; top: 18px; right: 18px; width: 60px; height: 60px; border-radius: 50%; background: #fff; box-shadow: 0 6px 18px rgba(20,20,30,.10), 0 0 0 1px var(--lc-line); display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 2; }
+  .lc-case-avatar img { max-width: 78%; max-height: 78%; width: auto; height: auto; object-fit: contain; }
+  .lc-case-avatar-text { background: var(--lc-grad-orange); box-shadow: 0 6px 18px rgba(255,107,28,.35); }
+  .lc-case-avatar-text span { font-family: 'Unbounded','Manrope',sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: .01em; color: #fff; line-height: 1; }
+  .lc-case-card h3 { margin-bottom: 8px; position: relative; z-index: 1; }
+  .lc-case-card p { color: var(--lc-muted); font-size: .98rem; position: relative; z-index: 1; }
+  .lc-cases-note { text-align: center; margin-top: 36px; color: var(--lc-muted); }
+
+  @media (max-width: 1024px) { .lc-cases { padding: 72px 0; } .lc-case-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; } }
+  @media (max-width: 860px) { .lc-case-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) { .lc-cases { padding: 56px 0; } .lc-case-grid { grid-template-columns: 1fr; } .lc-case-card { padding: 88px 22px 24px; min-height: 200px; } .lc-case-avatar { width: 52px; height: 52px; top: 14px; right: 14px; } .lc-case-tag { top: 16px; left: 16px; padding: 5px 10px; font-size: .68rem; } }
+</style>
+
+<section id="lc-cases" class="lc-section lc-cases">
+  <div class="lc-container">
+    <header class="lc-section-head" style="text-align:center;margin-left:auto;margin-right:auto;">
+      <span class="lc-eyebrow">Кейсы</span>
+      <h2>Кто нам доверяет</h2>
+    </header>
+    <div class="lc-case-grid">
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/enot-park.png" alt="Енот-Парк"></div>
+        <h3>Енот&nbsp;парк</h3>
+        <p>Маркетинг под ключ: соцсети, таргет, контент.</p>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mk-rost.png" alt="TORA Meat Company"></div>
+        <h3>МК «Рост»</h3>
+        <p>Продвижение и привлечение клиентов.</p>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/izhsintez.png" alt="Ижсинтез-Химпром"></div>
+        <h3>Ижсинтез-Химпром</h3>
+        <p>Комплексное маркетинговое сопровождение.</p>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar lc-case-avatar-text"><span>ЛС</span></div>
+        <h3>Лео&nbsp;Смарт&nbsp;Авто</h3>
+        <p>Продвижение услуг автосервиса, лидогенерация.</p>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar lc-case-avatar-text"><span>МС</span></div>
+        <h3>Март&nbsp;Строй</h3>
+        <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
+      </article>
+    </div>
+    <p class="lc-cases-note">Полные кейсы с цифрами и результатами — высылаем по запросу.</p>
+  </div>
+</section>
