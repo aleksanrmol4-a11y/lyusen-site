@@ -57,12 +57,15 @@
       <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
       <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
       <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea></label>
+      <label class="lc-consent">
+        <input type="checkbox" name="consent" required>
+        <span>Я даю согласие на обработку моих персональных данных в соответствии с <a href="/privacy" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
+      </label>
       <button type="submit" class="lc-btn lc-btn-primary lc-btn-lg lc-form-submit lc-btn-arrow" id="lc-submitBtn">
         <span class="lc-btn-label">Отправить заявку</span>
         <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
         <span class="lc-btn-spinner" aria-hidden="true"></span>
       </button>
-      <p class="lc-form-note">Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных.</p>
       <div class="lc-form-status" id="lc-formStatus" role="status" aria-live="polite"></div>
     </form>
   </div>

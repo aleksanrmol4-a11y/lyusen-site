@@ -724,6 +724,53 @@ p  { margin: 0; }
 .is-loading .btn-spinner { display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .form-note { color: var(--muted); font-size: .82rem; margin-top: 14px; line-height: 1.5; }
+
+/* Чекбокс согласия (152-ФЗ) */
+.consent-field {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 4px 0 16px;
+  font-size: .85rem;
+  color: var(--muted);
+  line-height: 1.5;
+  cursor: pointer;
+  user-select: none;
+}
+.consent-field input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .15s, background .15s;
+}
+.consent-field input[type="checkbox"]:hover { border-color: var(--orange); }
+.consent-field input[type="checkbox"]:checked {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+.consent-field input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px; top: 1px;
+  width: 6px; height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.consent-field input[type="checkbox"]:invalid {
+  border-color: var(--line-2);
+}
+.consent-field input[type="checkbox"]:focus-visible {
+  outline: 3px solid rgba(255,122,26,.3);
+  outline-offset: 2px;
+}
+.consent-field a { color: var(--orange-dark); font-weight: 600; text-decoration: underline; }
+.consent-field a:hover { color: var(--orange); }
+
 .form-status { margin-top: 14px; padding: 14px 16px; border-radius: var(--r); font-size: .95rem; display: none; }
 .form-status.ok  { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
 .form-status.err { display: block; background: #FCEEEE; color: #A1283A; border: 1px solid #F1C8CB; }
@@ -736,6 +783,9 @@ p  { margin: 0; }
 .footer-brand { display: flex; align-items: center; gap: 14px; }
 .footer-brand strong { display: block; font-weight: 800; }
 .footer-brand span { color: var(--muted); font-size: .9rem; }
+.footer-links { display: flex; align-items: center; gap: 24px; }
+.footer-links a { color: var(--muted); font-size: .9rem; font-weight: 600; transition: color .15s; }
+.footer-links a:hover { color: var(--orange); }
 .footer-copy { color: var(--muted); font-size: .9rem; }
 
 /* ============================

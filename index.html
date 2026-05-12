@@ -403,13 +403,17 @@
           <textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea>
         </label>
 
+        <label class="consent-field">
+          <input type="checkbox" name="consent" required>
+          <span>Я даю согласие на обработку моих персональных данных в соответствии с <a href="privacy.html" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
+        </label>
+
         <button type="submit" class="btn btn-primary btn-lg form-submit btn-arrow" id="submitBtn">
           <span class="btn-label">Отправить заявку</span>
           <svg class="btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
           <span class="btn-spinner" aria-hidden="true"></span>
         </button>
 
-        <p class="form-note">Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных.</p>
         <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
       </form>
     </div>
@@ -425,6 +429,9 @@
         <strong>Люсъен</strong>
         <span>Маркетинг, который бьёт в цель</span>
       </div>
+    </div>
+    <div class="footer-links">
+      <a href="privacy.html">Политика конфиденциальности</a>
     </div>
     <div class="footer-copy">© <span id="year"></span> Люсъен. Все права защищены.</div>
   </div>
@@ -481,6 +488,10 @@
       <label class="field">
         <span>Что нужно сделать</span>
         <textarea name="message" rows="3" required placeholder="Коротко по задаче"></textarea>
+      </label>
+      <label class="consent-field">
+        <input type="checkbox" name="consent" required>
+        <span>Согласен с <a href="privacy.html" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
       </label>
       <button type="submit" class="btn btn-primary btn-lg form-submit btn-arrow" id="fabSubmitBtn">
         <span class="btn-label">Отправить</span>
