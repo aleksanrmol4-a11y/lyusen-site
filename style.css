@@ -562,7 +562,32 @@ p  { margin: 0; }
 /* ============================
    Cases
    ============================ */
-.cases { padding: 96px 0; background: var(--bg-cream); }
+.cases { padding: 96px 0; background: var(--bg-cream); overflow: hidden; }
+
+/* Carousel вместо обычной сетки */
+.case-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 8px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+}
+.case-track {
+  display: flex; gap: 22px;
+  width: max-content;
+  animation: case-scroll 48s linear infinite;
+  will-change: transform;
+}
+.case-track:hover { animation-play-state: paused; }
+.case-carousel .case-card { width: 300px; min-height: 280px; flex-shrink: 0; }
+@keyframes case-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-50% - 11px)); }
+}
+
+/* Старая сетка оставлена для обратной совместимости (если где-то используется) */
 .case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
 .case-card {
   position: relative;
@@ -621,6 +646,33 @@ p  { margin: 0; }
 }
 .case-card h3 { margin-bottom: 8px; position: relative; z-index: 1; }
 .case-card p { color: var(--muted); font-size: .98rem; position: relative; z-index: 1; }
+
+/* Теги услуг — всегда видны на мобильных, на десктопе плавно появляются на hover */
+.case-services {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 16px;
+  position: relative; z-index: 1;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.case-services span {
+  display: inline-block;
+  padding: 5px 11px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--orange-dark);
+  background: rgba(255,122,26,.10);
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(255,122,26,.20);
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  .case-services { opacity: 0; transform: translateY(8px); }
+  .case-card:hover .case-services { opacity: 1; transform: translateY(0); }
+  .case-card:hover p { opacity: .7; }
+  .case-card p { transition: opacity .25s; }
+}
+
 .cases-note { text-align: center; margin-top: 36px; color: var(--muted); }
 @media (max-width: 1024px) {
   .case-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -889,8 +941,13 @@ p  { margin: 0; }
   .sc-icon { width: 54px; height: 54px; }
 
   .case-card { padding: 88px 22px 24px; min-height: 200px; }
+  .case-carousel .case-card { width: 260px; min-height: 260px; padding: 84px 20px 22px; }
+  .case-track { gap: 16px; animation-duration: 42s; }
+  @keyframes case-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 8px)); } }
   .case-avatar { width: 52px; height: 52px; top: 14px; right: 14px; }
   .case-tag { top: 16px; left: 16px; padding: 5px 10px; font-size: .68rem; }
+  .case-services { margin-top: 12px; gap: 5px; opacity: 1 !important; transform: none !important; }
+  .case-services span { padding: 4px 9px; font-size: .72rem; }
 
   .price-list li {
     padding: 14px 36px 14px 18px;
