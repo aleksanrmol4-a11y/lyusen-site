@@ -1,33 +1,98 @@
 <!--
   Прайс с группами. Клик по позиции = автозаполнение формы + скролл.
-  Требует блок 07-contact (textarea[name=message]).
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
 -->
 <style>
-  .lc-pricing { padding: 96px 0; background: var(--lc-bg); }
-  .lc-pricing .lc-section-head { margin-left: auto; margin-right: auto; text-align: center; max-width: 760px; margin-bottom: 56px; }
+  .lc-pricing {
+    padding: 96px 0;
+    background: #FFF6E8 !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-pricing *, .lc-pricing *::before, .lc-pricing *::after { box-sizing: border-box; }
+  .lc-pricing-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-pricing-head { max-width: 760px; margin: 0 auto 56px; text-align: center; }
+  .lc-pricing-head .lc-eyebrow {
+    display: inline-block; font-size: .82rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #FF7A1A !important;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,122,26,.10);
+    margin: 0 0 20px;
+  }
+  .lc-pricing-head h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 0 0 14px;
+  }
+  .lc-pricing-head p { color: #6B6B75 !important; font-size: 1.08rem; margin: 0; }
+
   .lc-pricing-group { max-width: 920px; margin: 0 auto 36px; }
-  .lc-pricing-group h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 14px; display: inline-block; padding: 6px 16px; background: #fff; border-radius: var(--lc-r-pill); border: 1px solid var(--lc-line); color: var(--lc-orange-dark); }
-  .lc-price-list { background: #fff; border-radius: var(--lc-r-lg); border: 1px solid var(--lc-line); overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,30,.03); }
-  .lc-price-list li { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 56px 18px 24px; border-bottom: 1px solid var(--lc-line); transition: background .15s, padding-right .2s; cursor: pointer; user-select: none; outline: none; }
+  .lc-pricing-group h3 {
+    font-size: 1.25rem; font-weight: 700;
+    margin: 0 0 14px;
+    display: inline-block;
+    padding: 6px 16px;
+    background: #ffffff !important;
+    border-radius: 999px;
+    border: 1px solid #F1E7D6;
+    color: #E5630A !important;
+  }
+  .lc-price-list {
+    background: #ffffff !important;
+    border-radius: 28px;
+    border: 1px solid #F1E7D6;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(20,20,30,.03);
+    margin: 0; padding: 0; list-style: none;
+  }
+  .lc-price-list li {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px;
+    padding: 18px 56px 18px 24px;
+    border-bottom: 1px solid #F1E7D6;
+    transition: background .15s, padding-right .2s;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
   .lc-price-list li:last-child { border-bottom: 0; }
-  .lc-price-list li::after { content: "→"; position: absolute; right: 24px; top: 50%; transform: translate(8px, -50%); font-size: 1.2rem; font-weight: 700; color: var(--lc-orange); opacity: 0; transition: opacity .18s, transform .22s; }
-  .lc-price-list li:hover { background: var(--lc-bg-soft); }
+  .lc-price-list li::after {
+    content: "→";
+    position: absolute; right: 24px; top: 50%;
+    transform: translate(8px, -50%);
+    font-size: 1.2rem; font-weight: 700;
+    color: #FF7A1A;
+    opacity: 0;
+    transition: opacity .18s, transform .22s;
+  }
+  .lc-price-list li:hover { background: #FFFAF1 !important; }
   .lc-price-list li:hover::after, .lc-price-list li:focus-visible::after { opacity: 1; transform: translate(0, -50%); }
-  .lc-price-list li:focus-visible { background: var(--lc-bg-soft); box-shadow: inset 3px 0 0 var(--lc-orange); }
-  .lc-price-list li:active { background: #FFF1DA; }
-  .lc-price-list span { flex: 1; color: var(--lc-ink-2); }
-  .lc-price-list b { font-weight: 700; color: var(--lc-orange-dark); white-space: nowrap; }
+  .lc-price-list li:focus-visible { background: #FFFAF1 !important; box-shadow: inset 3px 0 0 #FF7A1A; }
+  .lc-price-list li:active { background: #FFF1DA !important; }
+  .lc-price-list span { flex: 1; color: #2A2A33 !important; }
+  .lc-price-list b { font-weight: 700; color: #E5630A !important; white-space: nowrap; }
 
   @media (max-width: 1024px) { .lc-pricing { padding: 72px 0; } .lc-pricing-group { margin-bottom: 28px; } }
-  @media (max-width: 720px) { .lc-pricing { padding: 56px 0; } .lc-price-list li { padding: 14px 36px 14px 18px; flex-wrap: wrap; gap: 6px; } .lc-price-list li::after { right: 14px; font-size: 1rem; opacity: 1; transform: translate(0, -50%); } .lc-price-list span { font-size: .95rem; } .lc-price-list b { font-size: .9rem; } .lc-pricing-group h3 { font-size: 1.1rem; } }
+  @media (max-width: 720px) {
+    .lc-pricing { padding: 56px 0; }
+    .lc-price-list li { padding: 14px 36px 14px 18px; flex-wrap: wrap; gap: 6px; }
+    .lc-price-list li::after { right: 14px; font-size: 1rem; opacity: 1; transform: translate(0, -50%); }
+    .lc-price-list span { font-size: .95rem; }
+    .lc-price-list b { font-size: .9rem; }
+    .lc-pricing-group h3 { font-size: 1.1rem; }
+  }
 </style>
 
-<section id="lc-pricing" class="lc-section lc-pricing">
-  <div class="lc-container">
-    <header class="lc-section-head">
+<section id="lc-pricing" class="lc-pricing">
+  <div class="lc-pricing-container">
+    <header class="lc-pricing-head">
       <span class="lc-eyebrow">Цены</span>
       <h2>Открытый прайс</h2>
-      <p class="lc-section-sub">Никаких «оставьте заявку, чтобы узнать стоимость». Берёте, что нужно — платите ровно за это.</p>
+      <p>Никаких «оставьте заявку, чтобы узнать стоимость». Берёте, что нужно — платите ровно за это.</p>
     </header>
 
     <div class="lc-pricing-group">

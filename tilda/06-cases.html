@@ -1,10 +1,33 @@
 <!--
-  Кейсы: карусель из 5 карточек с лого-аватарками в правом верхнем углу.
-  На hover карточки плавно появляются теги услуг (на мобильных всегда видны).
-  Анимация плавно едет влево, на hover паузится. Дубль набора для бесшовности.
+  Кейсы: карусель из 5 карточек с лого-аватарками. На hover — теги услуг.
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
 -->
 <style>
-  .lc-cases { padding: 96px 0; background: var(--lc-bg-cream); overflow: hidden; }
+  .lc-cases {
+    padding: 96px 0;
+    background: #FFEFD9 !important;
+    overflow: hidden;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-cases *, .lc-cases *::before, .lc-cases *::after { box-sizing: border-box; }
+  .lc-cases-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-cases-head { max-width: 760px; margin: 0 auto 56px; text-align: center; }
+  .lc-cases-head .lc-eyebrow {
+    display: inline-block; font-size: .82rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #FF7A1A !important;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,122,26,.10);
+    margin: 0 0 20px;
+  }
+  .lc-cases-head h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 0;
+  }
 
   .lc-case-carousel {
     position: relative; width: 100%; overflow: hidden; padding: 8px 0;
@@ -20,26 +43,80 @@
   .lc-case-track:hover { animation-play-state: paused; }
   @keyframes lc-case-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 11px)); } }
 
-  .lc-case-card { position: relative; width: 300px; min-height: 280px; flex-shrink: 0; padding: 100px 26px 28px; background: #fff; border-radius: var(--lc-r-xl); display: flex; flex-direction: column; justify-content: flex-end; transition: transform .2s, box-shadow .25s; overflow: hidden; }
-  .lc-case-card::before { content: ""; position: absolute; top: -30px; right: -30px; width: 160px; height: 160px; background: var(--lc-grad-orange); border-radius: 50%; opacity: .14; }
-  .lc-case-card:hover { transform: translateY(-4px); box-shadow: var(--lc-shadow-lg); }
-  .lc-case-tag { position: absolute; top: 22px; left: 22px; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--lc-orange); background: rgba(255,122,26,.12); padding: 6px 12px; border-radius: var(--lc-r-pill); z-index: 2; }
-  .lc-case-avatar { position: absolute; top: 18px; right: 18px; width: 60px; height: 60px; border-radius: 50%; background: #fff; box-shadow: 0 6px 18px rgba(20,20,30,.10), 0 0 0 1px var(--lc-line); display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 2; }
+  .lc-case-card {
+    position: relative;
+    width: 300px; min-height: 280px;
+    flex-shrink: 0;
+    padding: 100px 26px 28px;
+    background: #ffffff !important;
+    border-radius: 36px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    transition: transform .2s, box-shadow .25s;
+    overflow: hidden;
+  }
+  .lc-case-card::before {
+    content: ""; position: absolute; top: -30px; right: -30px;
+    width: 160px; height: 160px;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%);
+    border-radius: 50%;
+    opacity: .14;
+  }
+  .lc-case-card:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 20px 56px rgba(255,130,30,.20); }
+  .lc-case-tag {
+    position: absolute; top: 22px; left: 22px;
+    font-size: .72rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: #FF7A1A !important;
+    background: rgba(255,122,26,.12);
+    padding: 6px 12px; border-radius: 999px;
+    z-index: 2;
+  }
+  .lc-case-avatar {
+    position: absolute; top: 18px; right: 18px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(20,20,30,.10), 0 0 0 1px #F1E7D6;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    z-index: 2;
+  }
   .lc-case-avatar img { max-width: 78%; max-height: 78%; width: auto; height: auto; object-fit: contain; }
-  .lc-case-avatar-text { background: var(--lc-grad-orange); box-shadow: 0 6px 18px rgba(255,107,28,.35); }
-  .lc-case-avatar-text span { font-family: 'Unbounded','Manrope',sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: .01em; color: #fff; line-height: 1; }
-  .lc-case-card h3 { margin-bottom: 8px; position: relative; z-index: 1; }
-  .lc-case-card p { color: var(--lc-muted); font-size: .98rem; position: relative; z-index: 1; transition: opacity .25s; }
+  .lc-case-card h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: #15151B !important;
+    margin: 0 0 8px;
+    position: relative; z-index: 1;
+  }
+  .lc-case-card p { color: #6B6B75 !important; font-size: .98rem; position: relative; z-index: 1; margin: 0; transition: opacity .25s; }
 
-  .lc-case-services { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; position: relative; z-index: 1; transition: opacity .25s, transform .25s; }
-  .lc-case-services span { display: inline-block; padding: 5px 11px; font-size: .78rem; font-weight: 700; letter-spacing: .02em; color: var(--lc-orange-dark); background: rgba(255,122,26,.10); border-radius: var(--lc-r-pill); border: 1px solid rgba(255,122,26,.20); white-space: nowrap; }
+  .lc-case-services {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 16px;
+    position: relative; z-index: 1;
+    transition: opacity .25s, transform .25s;
+  }
+  .lc-case-services span {
+    display: inline-block;
+    padding: 5px 11px;
+    font-size: .78rem; font-weight: 700;
+    letter-spacing: .02em;
+    color: #E5630A !important;
+    background: rgba(255,122,26,.10);
+    border-radius: 999px;
+    border: 1px solid rgba(255,122,26,.20);
+    white-space: nowrap;
+  }
   @media (hover: hover) {
     .lc-case-services { opacity: 0; transform: translateY(8px); }
     .lc-case-card:hover .lc-case-services { opacity: 1; transform: translateY(0); }
     .lc-case-card:hover p { opacity: .7; }
   }
 
-  .lc-cases-note { text-align: center; margin-top: 36px; color: var(--lc-muted); }
+  .lc-cases-note { text-align: center; margin-top: 36px; color: #6B6B75 !important; }
 
   @media (max-width: 1024px) { .lc-cases { padding: 72px 0; } }
   @media (max-width: 720px) {
@@ -54,9 +131,9 @@
   }
 </style>
 
-<section id="lc-cases" class="lc-section lc-cases">
-  <div class="lc-container">
-    <header class="lc-section-head" style="text-align:center;margin-left:auto;margin-right:auto;">
+<section id="lc-cases" class="lc-cases">
+  <div class="lc-cases-container">
+    <header class="lc-cases-head">
       <span class="lc-eyebrow">Кейсы</span>
       <h2>Кто нам доверяет</h2>
     </header>
@@ -99,7 +176,7 @@
         <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
         <div class="lc-case-services"><span>SMM</span><span>Сайт</span><span>Таргет</span></div>
       </article>
-      <!-- Набор 2 — дубликат для бесшовности -->
+      <!-- Набор 2 -->
       <article class="lc-case-card" aria-hidden="true">
         <div class="lc-case-tag">В работе</div>
         <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/enot-park.png" alt=""></div>
@@ -123,21 +200,21 @@
       </article>
       <article class="lc-case-card" aria-hidden="true">
         <div class="lc-case-tag">В работе</div>
-        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/leo-smart.jpg" alt="Лео Смарт Авто"></div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/leo-smart.jpg" alt=""></div>
         <h3>Лео&nbsp;Смарт&nbsp;Авто</h3>
         <p>Продвижение услуг автосервиса, лидогенерация.</p>
         <div class="lc-case-services"><span>Таргет</span><span>Контекст</span><span>Лиды</span></div>
       </article>
       <article class="lc-case-card" aria-hidden="true">
         <div class="lc-case-tag">В работе</div>
-        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mart-stroy.png" alt="Март Строй"></div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mart-stroy.png" alt=""></div>
         <h3>Март&nbsp;Строй</h3>
         <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
         <div class="lc-case-services"><span>SMM</span><span>Сайт</span><span>Таргет</span></div>
       </article>
     </div>
   </div>
-  <div class="lc-container">
+  <div class="lc-cases-container">
     <p class="lc-cases-note">Полные кейсы с цифрами и результатами — высылаем по запросу.</p>
   </div>
 </section>

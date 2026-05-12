@@ -1,73 +1,197 @@
 <!--
-  Контакты + основная форма заявки.
-  ВАЖНО: токен Telegram-бота и chat_id зашиты в JS. Если развёртываете под Тильдой
-  и хочется родную интеграцию — отправляйте через настройки формы Тильды
-  (Подключения → Telegram) вместо нашего JS. Тогда удалите/закомментируйте скрипт ниже.
+  Контакты + основная форма заявки (с чекбоксом согласия на ПДн).
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
+
+  ВАЖНО: токен Telegram-бота зашит в JS. Альтернатива — родная Telegram-интеграция Тильды.
 -->
 <style>
-  .lc-contact { padding: 96px 0; background: var(--lc-bg); }
+  .lc-contact {
+    padding: 96px 0;
+    background: #FFF6E8 !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-contact *, .lc-contact *::before, .lc-contact *::after { box-sizing: border-box; }
+  .lc-contact-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
   .lc-contact-inner { display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: start; }
-  .lc-contact-info h2 { font-size: clamp(2rem, 4.4vw, 3.6rem); margin: 4px 0 18px; }
-  .lc-contact-lead { color: var(--lc-muted); margin-bottom: 36px; max-width: 460px; }
-  .lc-contact-list li { display: flex; align-items: center; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--lc-line); }
-  .lc-contact-list li:last-child { border-bottom: 0; }
-  .lc-contact-label { width: 120px; color: var(--lc-muted); font-size: .94rem; font-weight: 600; }
-  .lc-contact-list a { font-weight: 700; color: var(--lc-ink); transition: color .15s; }
-  .lc-contact-list a:hover { color: var(--lc-orange); }
 
-  .lc-lead-form { background: #fff; padding: 40px 36px; border-radius: var(--lc-r-xl); border: 1px solid var(--lc-line); box-shadow: var(--lc-shadow); }
-  .lc-lead-form h3 { font-size: 1.6rem; margin-bottom: 6px; }
-  .lc-form-sub { color: var(--lc-muted); margin-bottom: 28px; }
+  .lc-contact-info .lc-eyebrow {
+    display: inline-block; font-size: .82rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #FF7A1A !important;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,122,26,.10);
+    margin: 0 0 20px;
+  }
+  .lc-contact-info h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 4px 0 18px;
+  }
+  .lc-contact-lead { color: #6B6B75 !important; margin: 0 0 36px; max-width: 460px; }
+  .lc-contact-list { list-style: none; padding: 0; margin: 0; }
+  .lc-contact-list li {
+    display: flex; align-items: center; gap: 18px;
+    padding: 16px 0; border-bottom: 1px solid #F1E7D6;
+  }
+  .lc-contact-list li:last-child { border-bottom: 0; }
+  .lc-contact-label { width: 120px; color: #6B6B75 !important; font-size: .94rem; font-weight: 600; }
+  .lc-contact-list a {
+    font-weight: 700;
+    color: #15151B !important;
+    text-decoration: none !important;
+    transition: color .15s;
+  }
+  .lc-contact-list a:hover { color: #FF7A1A !important; }
+
+  .lc-lead-form {
+    background: #ffffff !important;
+    padding: 40px 36px;
+    border-radius: 36px;
+    border: 1px solid #F1E7D6;
+    box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 8px 28px rgba(20,20,30,.06);
+  }
+  .lc-lead-form h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: #15151B !important;
+    margin: 0 0 6px;
+  }
+  .lc-form-sub { color: #6B6B75 !important; margin: 0 0 28px; }
   .lc-field { display: block; margin-bottom: 18px; }
-  .lc-field > span { display: block; font-size: .9rem; font-weight: 600; color: var(--lc-ink-2); margin-bottom: 8px; }
-  .lc-field input, .lc-field textarea { width: 100%; padding: 15px 18px; font-family: inherit; font-size: 1rem; color: var(--lc-ink); background: var(--lc-bg-soft); border: 1px solid var(--lc-line-2); border-radius: var(--lc-r); transition: border-color .15s, background .15s; }
-  .lc-field input:focus, .lc-field textarea:focus { outline: none; border-color: var(--lc-orange); background: #fff; }
+  .lc-field > span { display: block; font-size: .9rem; font-weight: 600; color: #2A2A33 !important; margin-bottom: 8px; }
+  .lc-field input, .lc-field textarea {
+    width: 100%; padding: 15px 18px;
+    font-family: inherit; font-size: 1rem;
+    color: #15151B !important;
+    background: #FFFAF1 !important;
+    border: 1px solid #E4D9C5;
+    border-radius: 18px;
+    transition: border-color .15s, background .15s;
+  }
+  .lc-field input:focus, .lc-field textarea:focus {
+    outline: none;
+    border-color: #FF7A1A;
+    background: #ffffff !important;
+  }
   .lc-field textarea { resize: vertical; min-height: 110px; }
-  .lc-form-submit { width: 100%; margin-top: 6px; position: relative; }
-  .lc-btn-spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: lc-spin .7s linear infinite; }
-  .is-loading .lc-btn-label, .is-loading .lc-btn-arrow-icon { display: none; }
-  .is-loading .lc-btn-spinner { display: inline-block; }
+
+  /* Чекбокс согласия */
+  .lc-consent {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 4px 0 16px;
+    font-size: .85rem;
+    color: #6B6B75 !important;
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+  }
+  .lc-consent input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 20px; height: 20px;
+    flex-shrink: 0; margin-top: 1px;
+    border: 1.5px solid #E4D9C5;
+    border-radius: 6px;
+    background: #ffffff;
+    cursor: pointer;
+    position: relative;
+    transition: border-color .15s, background .15s;
+  }
+  .lc-consent input[type="checkbox"]:hover { border-color: #FF7A1A; }
+  .lc-consent input[type="checkbox"]:checked { background: #FF7A1A; border-color: #FF7A1A; }
+  .lc-consent input[type="checkbox"]:checked::after {
+    content: ""; position: absolute;
+    left: 5px; top: 1px;
+    width: 6px; height: 11px;
+    border: solid #ffffff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .lc-consent a { color: #E5630A !important; font-weight: 600; text-decoration: underline; }
+  .lc-consent a:hover { color: #FF7A1A !important; }
+
+  /* Кнопка отправки — белый текст на оранжевом */
+  .lc-form-submit {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700 !important;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 19px 32px;
+    border-radius: 999px;
+    border: 0;
+    text-decoration: none !important;
+    box-shadow: 0 8px 22px rgba(255,107,28,.34);
+    transition: transform .14s, box-shadow .22s;
+    cursor: pointer;
+    margin-top: 6px;
+    position: relative;
+  }
+  .lc-form-submit:hover { transform: translateY(-1.5px); box-shadow: 0 12px 32px rgba(255,107,28,.46); }
+  .lc-form-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; box-shadow: none; }
+  .lc-form-submit * { color: #ffffff !important; }
+  .lc-form-submit svg { transition: transform .2s; }
+  .lc-form-submit:hover svg { transform: translateX(3px); }
+
+  .lc-btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: lc-spin .7s linear infinite;
+  }
+  .lc-form-submit.is-loading .lc-btn-label, .lc-form-submit.is-loading .lc-btn-arrow-icon { display: none; }
+  .lc-form-submit.is-loading .lc-btn-spinner { display: inline-block; }
   @keyframes lc-spin { to { transform: rotate(360deg); } }
-  .lc-form-note { color: var(--lc-muted); font-size: .82rem; margin-top: 14px; line-height: 1.5; }
-  .lc-form-status { margin-top: 14px; padding: 14px 16px; border-radius: var(--lc-r); font-size: .95rem; display: none; }
-  .lc-form-status.ok  { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
+
+  .lc-form-status { margin-top: 14px; padding: 14px 16px; border-radius: 18px; font-size: .95rem; display: none; }
+  .lc-form-status.ok { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
   .lc-form-status.err { display: block; background: #FCEEEE; color: #A1283A; border: 1px solid #F1C8CB; }
 
   @media (max-width: 1024px) { .lc-contact { padding: 72px 0; } .lc-contact-inner { grid-template-columns: 1fr; gap: 48px; } }
   @media (max-width: 720px) { .lc-contact { padding: 56px 0; } .lc-lead-form { padding: 24px 18px; } .lc-contact-list li { gap: 10px; padding: 12px 0; } .lc-contact-label { width: 88px; font-size: .86rem; } }
 </style>
 
-<section id="lc-contact" class="lc-section lc-contact">
-  <div class="lc-container lc-contact-inner">
-    <div class="lc-contact-info">
-      <span class="lc-eyebrow">Контакты</span>
-      <h2>Поговорим о&nbsp;вашем бизнесе</h2>
-      <p class="lc-contact-lead">Опишите задачу — в течение дня вернёмся с предложением, ценой и сроками. Без долгих брифов.</p>
-      <ul class="lc-contact-list">
-        <li><span class="lc-contact-label">Telegram</span><a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">@AlexLeonidovich1</a></li>
-        <li><span class="lc-contact-label">WhatsApp</span><a href="https://wa.me/79068161172" target="_blank" rel="noopener">+7 906 816-11-72</a></li>
-        <li><span class="lc-contact-label">Телефон</span><a href="tel:+79935311172">+7 993 531-11-72</a></li>
-        <li><span class="lc-contact-label">Email</span><a href="mailto:compalekks@gmail.com">compalekks@gmail.com</a></li>
-        <li><span class="lc-contact-label">ВКонтакте</span><a href="https://vk.com/lusen_agency" target="_blank" rel="noopener">vk.com/lusen_agency</a></li>
-      </ul>
+<section id="lc-contact" class="lc-contact">
+  <div class="lc-contact-container">
+    <div class="lc-contact-inner">
+      <div class="lc-contact-info">
+        <span class="lc-eyebrow">Контакты</span>
+        <h2>Поговорим о&nbsp;вашем бизнесе</h2>
+        <p class="lc-contact-lead">Опишите задачу — в течение дня вернёмся с предложением, ценой и сроками. Без долгих брифов.</p>
+        <ul class="lc-contact-list">
+          <li><span class="lc-contact-label">Telegram</span><a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">@AlexLeonidovich1</a></li>
+          <li><span class="lc-contact-label">WhatsApp</span><a href="https://wa.me/79068161172" target="_blank" rel="noopener">+7 906 816-11-72</a></li>
+          <li><span class="lc-contact-label">Телефон</span><a href="tel:+79935311172">+7 993 531-11-72</a></li>
+          <li><span class="lc-contact-label">Email</span><a href="mailto:compalekks@gmail.com">compalekks@gmail.com</a></li>
+          <li><span class="lc-contact-label">ВКонтакте</span><a href="https://vk.com/lusen_agency" target="_blank" rel="noopener">vk.com/lusen_agency</a></li>
+        </ul>
+      </div>
+      <form id="lc-leadForm" class="lc-lead-form" novalidate>
+        <h3>Получить стратегию</h3>
+        <p class="lc-form-sub">Заявка прилетит лично основателю агентства.</p>
+        <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
+        <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
+        <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea></label>
+        <label class="lc-consent">
+          <input type="checkbox" name="consent" required>
+          <span>Я даю согласие на обработку моих персональных данных в соответствии с <a href="/privacy" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
+        </label>
+        <button type="submit" class="lc-form-submit" id="lc-submitBtn">
+          <span class="lc-btn-label">Отправить заявку</span>
+          <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+          <span class="lc-btn-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="lc-form-status" id="lc-formStatus" role="status" aria-live="polite"></div>
+      </form>
     </div>
-    <form id="lc-leadForm" class="lc-lead-form" novalidate>
-      <h3>Получить стратегию</h3>
-      <p class="lc-form-sub">Заявка прилетит лично основателю агентства.</p>
-      <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
-      <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
-      <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea></label>
-      <label class="lc-consent">
-        <input type="checkbox" name="consent" required>
-        <span>Я даю согласие на обработку моих персональных данных в соответствии с <a href="/privacy" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
-      </label>
-      <button type="submit" class="lc-btn lc-btn-primary lc-btn-lg lc-form-submit lc-btn-arrow" id="lc-submitBtn">
-        <span class="lc-btn-label">Отправить заявку</span>
-        <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
-        <span class="lc-btn-spinner" aria-hidden="true"></span>
-      </button>
-      <div class="lc-form-status" id="lc-formStatus" role="status" aria-live="polite"></div>
-    </form>
   </div>
 </section>
 
