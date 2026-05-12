@@ -21,8 +21,7 @@
 <header class="site-header" id="top">
   <div class="container header-inner">
     <a href="#top" class="logo" aria-label="Люсъен">
-      <img src="assets/logo.png" alt="" width="44" height="44">
-      <span class="logo-text">ЛЮСЪЕН</span>
+      <img src="assets/logo.png" alt="Люсъен" width="64" height="64">
     </a>
     <nav class="nav" id="nav">
       <a href="#top">Главная</a>
@@ -88,7 +87,6 @@
           </div>
           <h3>SMM под ключ</h3>
           <p>Контент-план, посты, сторис, модерация, таргет ВКонтакте. Полное ведение соцсетей с прицелом на лидов.</p>
-          <div class="sc-price">от 27 000 ₽/мес</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -100,7 +98,6 @@
           </div>
           <h3>Контекст и таргет</h3>
           <p>Яндекс.Директ, Google Ads, ВК-реклама, Avito и маркетплейсы. Запускаем за 7 дней, считаем CPL и ROMI.</p>
-          <div class="sc-price">от 15 000 ₽/мес</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -112,7 +109,6 @@
           </div>
           <h3>Сайты и CRM</h3>
           <p>Лендинги и корпоративные сайты, настройка Bitrix24, чат-боты в Telegram и VK, сопровождение.</p>
-          <div class="sc-price">от 3 000 ₽/мес</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -124,7 +120,6 @@
           </div>
           <h3>Аналитика и стратегия</h3>
           <p>Анализ рынка, портрета клиента, конкурентов. Стратегия продвижения на 6-12 месяцев под ваши KPI.</p>
-          <div class="sc-price">от 8 000 ₽</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -136,7 +131,6 @@
           </div>
           <h3>Контент и брендинг</h3>
           <p>Фото и видеосъёмка, фирменный стиль, брендбук, мерч. Создаём визуальный язык, который запоминается.</p>
-          <div class="sc-price">от 15 000 ₽</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -148,7 +142,6 @@
           </div>
           <h3>Маркетинг под ключ</h3>
           <p>Полный аутсорсинг: стратегия, реклама, контент, аналитика. Заменяем вам in-house маркетолога и команду подрядчиков.</p>
-          <div class="sc-price">индивидуально</div>
           <span class="sc-cta">Оставить заявку →</span>
         </a>
 
@@ -265,31 +258,31 @@
       <div class="case-grid">
         <article class="case-card">
           <div class="case-tag">В работе</div>
-          <div class="case-logo"><img src="assets/clients/enot-park.png" alt="Енот-Парк"></div>
+          <div class="case-avatar"><img src="assets/clients/enot-park.png" alt="Енот-Парк"></div>
           <h3>Енот&nbsp;парк</h3>
           <p>Маркетинг под ключ: соцсети, таргет, контент.</p>
         </article>
         <article class="case-card">
           <div class="case-tag">В работе</div>
-          <div class="case-logo case-logo-text"><span>МК «Рост»</span></div>
+          <div class="case-avatar case-avatar-text"><span>МК</span></div>
           <h3>МК «Рост»</h3>
           <p>Продвижение и привлечение клиентов.</p>
         </article>
         <article class="case-card">
           <div class="case-tag">В работе</div>
-          <div class="case-logo"><img src="assets/clients/izhsintez.png" alt="Ижсинтез-Химпром"></div>
+          <div class="case-avatar"><img src="assets/clients/izhsintez.png" alt="Ижсинтез-Химпром"></div>
           <h3>Ижсинтез-Химпром</h3>
           <p>Комплексное маркетинговое сопровождение.</p>
         </article>
         <article class="case-card">
           <div class="case-tag">В работе</div>
-          <div class="case-logo"><img src="assets/clients/leo-smart.svg" alt="Лео Смарт Авто"></div>
+          <div class="case-avatar case-avatar-text"><span>ЛС</span></div>
           <h3>Лео&nbsp;Смарт&nbsp;Авто</h3>
           <p>Продвижение услуг автосервиса, лидогенерация.</p>
         </article>
         <article class="case-card">
           <div class="case-tag">В работе</div>
-          <div class="case-logo"><img src="assets/clients/mart-stroy.png" alt="Март Строй"></div>
+          <div class="case-avatar case-avatar-text"><span>МС</span></div>
           <h3>Март&nbsp;Строй</h3>
           <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
         </article>
@@ -374,6 +367,64 @@
     <div class="footer-copy">© <span id="year"></span> Люсъен. Все права защищены.</div>
   </div>
 </footer>
+
+<!-- Floating contact widget -->
+<div class="fab-wrap" id="fabWrap">
+  <div class="fab-menu" id="fabMenu" hidden>
+    <button type="button" class="fab-item fab-form" data-action="form" aria-label="Открыть форму обратной связи">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span>Форма</span>
+    </button>
+    <a class="fab-item fab-tg" href="https://t.me/Alexander_marketing_bot" target="_blank" rel="noopener" aria-label="Telegram-бот">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.86 4.32 2.94 11.58c-1.29.52-1.28 1.24-.24 1.55l4.86 1.52 11.24-7.09c.53-.32 1.02-.15.62.2L10.32 14.9l-.34 5.09c.51 0 .73-.24 1.02-.51l2.44-2.37 5.07 3.74c.93.51 1.6.25 1.84-.86l3.32-15.66c.35-1.36-.51-1.98-1.41-1.62-.2.06-.2.06-.4.13z"/></svg>
+      <span>Telegram</span>
+    </a>
+    <a class="fab-item fab-wa" href="https://wa.me/79068161172" target="_blank" rel="noopener" aria-label="WhatsApp">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 22h0a10 10 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A10 10 0 0 1 12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10m8.5-18.5A12 12 0 0 0 12 0 12 12 0 0 0 .5 14.9L0 24l7.3-1.9A12 12 0 0 0 12 24h0a12 12 0 0 0 8.5-20.5"/></svg>
+      <span>WhatsApp</span>
+    </a>
+    <a class="fab-item fab-call" href="tel:+79935311172" aria-label="Позвонить">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>Позвонить</span>
+    </a>
+  </div>
+  <button type="button" class="fab-toggle" id="fabToggle" aria-label="Связаться с нами" aria-expanded="false">
+    <svg class="fab-icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <svg class="fab-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- Floating form modal -->
+<div class="fab-modal" id="fabModal" hidden role="dialog" aria-modal="true" aria-labelledby="fabFormTitle">
+  <div class="fab-modal-backdrop" data-close="1"></div>
+  <div class="fab-modal-card">
+    <button type="button" class="fab-modal-close" data-close="1" aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 id="fabFormTitle">Связаться с нами</h3>
+    <p class="form-sub">Оставьте контакт — ответим за день.</p>
+    <form id="fabForm" class="lead-form fab-form-inner" novalidate>
+      <label class="field">
+        <span>Как вас зовут</span>
+        <input type="text" name="name" required autocomplete="name" placeholder="Александр">
+      </label>
+      <label class="field">
+        <span>Телефон или Telegram</span>
+        <input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__">
+      </label>
+      <label class="field">
+        <span>Что нужно сделать</span>
+        <textarea name="message" rows="3" required placeholder="Коротко по задаче"></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary btn-lg form-submit btn-arrow" id="fabSubmitBtn">
+        <span class="btn-label">Отправить</span>
+        <svg class="btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        <span class="btn-spinner" aria-hidden="true"></span>
+      </button>
+      <div class="form-status" id="fabFormStatus" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
 
 <script src="script.js" defer></script>
 </body>

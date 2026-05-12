@@ -77,69 +77,139 @@ function escapeMarkdown(s) {
 }
 
 if (form) {
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!form.reportValidity()) return;
+    submitLeadForm(form, submitBtn, statusEl);
+  });
+}
 
-    const data = new FormData(form);
-    const name = (data.get('name') || '').toString().trim();
-    const contact = (data.get('contact') || '').toString().trim();
-    const message = (data.get('message') || '').toString().trim();
+// ---- floating contact widget ----
+const fabWrap = document.getElementById('fabWrap');
+const fabToggle = document.getElementById('fabToggle');
+const fabMenu = document.getElementById('fabMenu');
+const fabModal = document.getElementById('fabModal');
 
-    if (!name || !contact || !message) {
-      setStatus('err', 'Заполните все поля.');
-      return;
+function setFabOpen(open) {
+  if (!fabWrap || !fabMenu) return;
+  fabWrap.dataset.open = open ? 'true' : 'false';
+  fabToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  fabMenu.hidden = !open;
+}
+
+function setModalOpen(open) {
+  if (!fabModal) return;
+  fabModal.hidden = !open;
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (open) {
+    const first = fabModal.querySelector('input, textarea');
+    if (first) setTimeout(() => first.focus(), 60);
+  }
+}
+
+if (fabToggle) {
+  fabToggle.addEventListener('click', () => {
+    const isOpen = fabWrap.dataset.open === 'true';
+    setFabOpen(!isOpen);
+  });
+}
+
+if (fabMenu) {
+  fabMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-action="form"]');
+    if (item) {
+      e.preventDefault();
+      setFabOpen(false);
+      setModalOpen(true);
     }
+  });
+}
 
-    const text =
-      '🔥 *Новая заявка с сайта Люсъен*\n\n' +
-      '👤 *Имя:* ' + escapeMarkdown(name) + '\n' +
-      '📱 *Контакт:* ' + escapeMarkdown(contact) + '\n\n' +
-      '💬 *Запрос:*\n' + escapeMarkdown(message);
+if (fabModal) {
+  fabModal.addEventListener('click', (e) => {
+    if (e.target.dataset.close === '1') setModalOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !fabModal.hidden) setModalOpen(false);
+  });
+}
 
-    const fallbackHtml =
-      'Не получилось отправить через сайт. Напишите напрямую — ответим сразу: ' +
-      '<a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">Telegram</a> · ' +
-      '<a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>. ' +
-      'Или скиньте на <a href="mailto:compalekks@gmail.com?subject=' +
-      encodeURIComponent('Заявка с сайта') + '&body=' +
-      encodeURIComponent('Имя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message) +
-      '">compalekks@gmail.com</a>.';
+// shared submit handler (reused for main form and modal form)
+async function submitLeadForm(formEl, btnEl, statusBox) {
+  if (!formEl.reportValidity()) return;
 
-    submitBtn.classList.add('is-loading');
-    submitBtn.disabled = true;
-    setStatus('', '');
+  const data = new FormData(formEl);
+  const name = (data.get('name') || '').toString().trim();
+  const contact = (data.get('contact') || '').toString().trim();
+  const message = (data.get('message') || '').toString().trim();
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
+  const setBox = (kind, html) => {
+    if (!statusBox) return;
+    statusBox.className = 'form-status ' + kind;
+    statusBox.innerHTML = html;
+    statusBox.style.display = html ? 'block' : 'none';
+  };
 
-    try {
-      const res = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: text,
-          parse_mode: 'Markdown',
-          disable_web_page_preview: true
-        }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+  if (!name || !contact || !message) {
+    setBox('err', 'Заполните все поля.');
+    return;
+  }
 
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.description || 'Telegram API error');
+  const text =
+    '🔥 *Новая заявка с сайта Люсъен*\n\n' +
+    '👤 *Имя:* ' + escapeMarkdown(name) + '\n' +
+    '📱 *Контакт:* ' + escapeMarkdown(contact) + '\n\n' +
+    '💬 *Запрос:*\n' + escapeMarkdown(message);
 
-      setStatus('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
-      form.reset();
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.error(err);
-      setStatus('err', fallbackHtml);
-    } finally {
-      submitBtn.classList.remove('is-loading');
-      submitBtn.disabled = false;
-    }
+  const fallbackHtml =
+    'Не получилось отправить через сайт. Напишите напрямую: ' +
+    '<a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">Telegram</a> · ' +
+    '<a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>. ' +
+    'Или скиньте на <a href="mailto:compalekks@gmail.com?subject=' +
+    encodeURIComponent('Заявка с сайта') + '&body=' +
+    encodeURIComponent('Имя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message) +
+    '">compalekks@gmail.com</a>.';
+
+  btnEl.classList.add('is-loading');
+  btnEl.disabled = true;
+  setBox('', '');
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
+
+  try {
+    const res = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: text,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.description || 'Telegram API error');
+    setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
+    formEl.reset();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.error(err);
+    setBox('err', fallbackHtml);
+  } finally {
+    btnEl.classList.remove('is-loading');
+    btnEl.disabled = false;
+  }
+}
+
+const fabForm = document.getElementById('fabForm');
+const fabSubmitBtn = document.getElementById('fabSubmitBtn');
+const fabFormStatus = document.getElementById('fabFormStatus');
+if (fabForm) {
+  fabForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitLeadForm(fabForm, fabSubmitBtn, fabFormStatus);
   });
 }
 
