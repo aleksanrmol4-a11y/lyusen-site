@@ -197,12 +197,43 @@
   </div>
 </section>
 
+<style>
+  .lc-form-status small { display: block; margin-top: 10px; color: #6B6B75; font-size: .82rem; }
+  .lc-form-fallback { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .lc-fb-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: .9rem; text-decoration: none !important; color: #ffffff !important; transition: transform .15s; flex: 1 1 auto; min-width: 110px; }
+  .lc-fb-btn:hover { transform: translateY(-1px); }
+  .lc-fb-tg { background: #229ED9 !important; box-shadow: 0 4px 12px rgba(34,158,217,.35); }
+  .lc-fb-wa { background: #25D366 !important; box-shadow: 0 4px 12px rgba(37,211,102,.35); }
+  .lc-fb-mail { background: #15151B !important; box-shadow: 0 4px 12px rgba(20,20,30,.25); }
+</style>
 <script>
   (function(){
-    // Заявка идёт через Cloudflare Worker — api.telegram.org заблокирован в РФ без VPN.
-    // Worker уже сам шлёт в Telegram с серверной стороны (не блокируется в РФ).
+    // Многоуровневая доставка заявки в РФ:
+    //  1) Cloudflare Worker → Telegram (быстро, если открыт)
+    //  2) Fallback — deep link на Telegram-бот с предзаполненной заявкой + WhatsApp + mailto
+    //     Так заявка не теряется даже если Cloudflare режется у клиента.
     var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
-    var TIMEOUT_MS = 12000;
+    var TG_BOT = 'Alexander_marketing_bot';
+    var TIMEOUT_MS = 6000;
+
+    function encodeLead(n, c, m){
+      var json = JSON.stringify({n:n, c:c, m:m});
+      var b64 = btoa(unescape(encodeURIComponent(json)));
+      return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, '');
+    }
+    function fallbackHtml(n, c, m){
+      var p = encodeLead(n, c, m);
+      var tgUrl = p.length <= 64 ? 'https://t.me/'+TG_BOT+'?start='+p : 'https://t.me/'+TG_BOT;
+      var waText = encodeURIComponent('Здравствуйте! Хочу обсудить:\n\nИмя: '+n+'\nКонтакт: '+c+'\n\n'+m);
+      var mailBody = encodeURIComponent('Имя: '+n+'\nКонтакт: '+c+'\n\n'+m);
+      return '<strong>Сеть подвела — выберите альтернативный способ:</strong>'+
+        '<div class="lc-form-fallback">'+
+        '<a class="lc-fb-btn lc-fb-tg" href="'+tgUrl+'" target="_blank" rel="noopener">Открыть в Telegram</a>'+
+        '<a class="lc-fb-btn lc-fb-wa" href="https://wa.me/79068161172?text='+waText+'" target="_blank" rel="noopener">WhatsApp</a>'+
+        '<a class="lc-fb-btn lc-fb-mail" href="mailto:compalekks@gmail.com?subject='+encodeURIComponent('Заявка с сайта')+'&body='+mailBody+'">Email</a>'+
+        '</div>'+
+        '<small>Заявка уже подготовлена — просто нажмите «Отправить» в выбранном приложении.</small>';
+    }
 
     window.lcSubmitLeadForm = async function(formEl, btnEl, statusBox){
       if (!formEl.reportValidity()) return false;
@@ -213,7 +244,6 @@
       var honeypot = (d.get('website')||'').toString().trim();
       function setBox(k, html){ if(!statusBox) return; statusBox.className='lc-form-status '+k; statusBox.innerHTML=html; statusBox.style.display=html?'block':'none'; }
       if (!name||!contact||!message){ setBox('err','Заполните все поля.'); return false; }
-      var fallback = 'Не получилось отправить через сайт. Напишите напрямую: <a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">Telegram</a> · <a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>. Или на <a href="mailto:compalekks@gmail.com?subject='+encodeURIComponent('Заявка с сайта')+'&body='+encodeURIComponent('Имя: '+name+'\nКонтакт: '+contact+'\n\n'+message)+'">compalekks@gmail.com</a>.';
       btnEl.classList.add('is-loading'); btnEl.disabled=true; setBox('','');
       var ctrl = new AbortController(); var tid = setTimeout(function(){ctrl.abort();}, TIMEOUT_MS);
       try {
@@ -228,7 +258,11 @@
         if (!res.ok || !json.ok) throw new Error(json.error || 'Send failed');
         setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
         btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
-      } catch(err){ clearTimeout(tid); console.error(err); setBox('err', fallback); btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false; }
+      } catch(err){
+        clearTimeout(tid); console.warn('Worker недоступен, fallback:', err);
+        setBox('err', fallbackHtml(name, contact, message));
+        btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false;
+      }
     };
 
     var form = document.getElementById('lc-leadForm');

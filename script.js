@@ -1,8 +1,13 @@
 // ---- config ----
-// Заявки идут через Cloudflare Worker (api.telegram.org заблокирован в РФ).
-// Worker уже сам шлёт в Telegram с серверной стороны.
-const LEAD_ENDPOINT   = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
-const SEND_TIMEOUT_MS = 12000;
+// Многоуровневая стратегия доставки заявки в РФ:
+//  1) пробуем Worker (быстро, у большинства работает)
+//  2) если не получилось — открываем Telegram-бот с предзаполненной заявкой через deep link ?start=base64
+//     бот сам пересылает её админу
+//  3) параллельно — резервные кнопки WhatsApp и mailto
+// Так заявка не теряется даже если Cloudflare режут провайдеры.
+const LEAD_ENDPOINT       = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
+const TG_BOT_USERNAME     = 'Alexander_marketing_bot';
+const SEND_TIMEOUT_MS     = 6000;  // короче чем раньше — быстрее переходим к fallback
 
 // ---- year ----
 const yearEl = document.getElementById('year');
@@ -131,9 +136,39 @@ if (fabModal) {
   });
 }
 
+// Кодирует {name,contact,message} в base64url-payload для deep link Telegram-бота.
+// Бот принимает payload через /start=<payload> и шлёт админу.
+function lcEncodeLead(name, contact, message) {
+  const json = JSON.stringify({ n: name, c: contact, m: message });
+  // utf-8 → base64 → base64url
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Резервная плашка с тремя кнопками: TG-бот (с deep link), WhatsApp, mailto.
+// Заявка не теряется ни в одном из этих сценариев.
+function lcFallbackHtml(name, contact, message) {
+  const tgPayload = lcEncodeLead(name, contact, message);
+  // Telegram ограничивает start-параметр 64 символами. Если влезает — используем deep link,
+  // иначе просто открываем чат с ботом, пользователь увидит подсказку и пришлёт текст вручную.
+  const tgUrl = tgPayload.length <= 64
+    ? 'https://t.me/' + TG_BOT_USERNAME + '?start=' + tgPayload
+    : 'https://t.me/' + TG_BOT_USERNAME;
+  const waText = encodeURIComponent('Здравствуйте! Хочу обсудить:\n\nИмя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message);
+  const mailBody = encodeURIComponent('Имя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message);
+  return (
+    '<strong>Сеть подвела — выберите альтернативный способ:</strong><br>' +
+    '<div class="form-fallback-actions">' +
+    '<a class="form-fallback-btn fb-tg" href="' + tgUrl + '" target="_blank" rel="noopener">Открыть в Telegram</a>' +
+    '<a class="form-fallback-btn fb-wa" href="https://wa.me/79068161172?text=' + waText + '" target="_blank" rel="noopener">WhatsApp</a>' +
+    '<a class="form-fallback-btn fb-mail" href="mailto:compalekks@gmail.com?subject=' + encodeURIComponent('Заявка с сайта') + '&body=' + mailBody + '">Email</a>' +
+    '</div>' +
+    '<small>Заявка уже подготовлена — просто нажмите «Отправить» в выбранном приложении.</small>'
+  );
+}
+
 // shared submit handler (reused for main form and modal form)
-// Заявка идёт через Cloudflare Worker, не напрямую в Telegram — РФ-блокировка не мешает.
-// Returns true if Worker подтвердил доставку.
+// Returns true if доставка точно подтверждена Worker'ом.
 async function submitLeadForm(formEl, btnEl, statusBox) {
   if (!formEl.reportValidity()) return false;
 
@@ -141,7 +176,6 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
   const name = (data.get('name') || '').toString().trim();
   const contact = (data.get('contact') || '').toString().trim();
   const message = (data.get('message') || '').toString().trim();
-  // Honeypot: если поле website заполнено → бот, тихо игнорируем
   const honeypot = (data.get('website') || '').toString().trim();
 
   const setBox = (kind, html) => {
@@ -156,15 +190,6 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     return false;
   }
 
-  const fallbackHtml =
-    'Не получилось отправить через сайт. Напишите напрямую: ' +
-    '<a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">Telegram</a> · ' +
-    '<a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>. ' +
-    'Или скиньте на <a href="mailto:compalekks@gmail.com?subject=' +
-    encodeURIComponent('Заявка с сайта') + '&body=' +
-    encodeURIComponent('Имя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message) +
-    '">compalekks@gmail.com</a>.';
-
   btnEl.classList.add('is-loading');
   btnEl.disabled = true;
   setBox('', '');
@@ -177,9 +202,7 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: name,
-        contact: contact,
-        message: message,
+        name: name, contact: contact, message: message,
         website: honeypot,
         source: formEl.id || 'web'
       }),
@@ -195,8 +218,8 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     return true;
   } catch (err) {
     clearTimeout(timeoutId);
-    console.error(err);
-    setBox('err', fallbackHtml);
+    console.warn('Worker недоступен, показываем fallback:', err);
+    setBox('err', lcFallbackHtml(name, contact, message));
     btnEl.classList.remove('is-loading');
     btnEl.disabled = false;
     return false;

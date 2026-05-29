@@ -105,12 +105,49 @@ async function handleLead(request, env, origin) {
     const tgJson = await tg.json();
     if (!tgJson.ok) {
       console.error('TG error:', tgJson);
+      // Если Telegram упал — пробуем VK. Хоть какой-то канал доставки.
+      const vkOk = await vkSendIfConfigured(env, text);
+      if (vkOk) return json(200, { ok: true, channel: 'vk' });
       return json(502, { ok: false, error: 'telegram_failed' });
     }
+    // Параллельно дублируем в VK (если настроено) — для надёжности
+    await vkSendIfConfigured(env, text);
     return json(200, { ok: true });
   } catch (err) {
     console.error('Worker error:', err);
     return json(500, { ok: false, error: 'server_error' });
+  }
+}
+
+// ─── VK дублирование ───
+// VK API работает в РФ без блокировок. Если в env заданы VK_GROUP_TOKEN и VK_PEER_ID,
+// заявка дополнительно уходит в VK-сообщение (например, в личку группы или диалог менеджера).
+// Без этих переменных — функция тихо ничего не делает.
+async function vkSendIfConfigured(env, text) {
+  if (!env.VK_GROUP_TOKEN || !env.VK_PEER_ID) return false;
+  try {
+    const params = new URLSearchParams({
+      access_token: env.VK_GROUP_TOKEN,
+      v: '5.199',
+      peer_id: String(env.VK_PEER_ID),
+      message: text.replace(/\*/g, '').replace(/_/g, '').replace(/`/g, ''), // VK не поддерживает Markdown
+      random_id: String(Math.floor(Math.random() * 1e9)),
+      dont_parse_links: '1'
+    });
+    const res = await fetch('https://api.vk.com/method/messages.send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const j = await res.json().catch(() => ({}));
+    if (j.error) {
+      console.error('VK error:', j.error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('VK send failed:', err);
+    return false;
   }
 }
 
@@ -133,8 +170,47 @@ async function handleTelegramWebhook(request, env) {
   const chatId = msg.chat.id;
   const isFromAdmin = String(chatId) === String(env.ADMIN_CHAT_ID);
 
-  // /start
-  if (msg.text === '/start') {
+  // ─── /start [payload] ───
+  // Если форма на сайте не смогла достучаться до Worker'а напрямую,
+  // она открывает бот через deep link https://t.me/bot?start=<base64url>
+  // где payload = base64url(JSON({n,c,m})). Распаковываем и админу.
+  if (msg.text && msg.text.indexOf('/start') === 0) {
+    const arg = msg.text.replace(/^\/start\s*/, '').trim();
+    if (arg) {
+      try {
+        const b64 = arg.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = b64 + '='.repeat((4 - b64.length % 4) % 4);
+        const decoded = decodeURIComponent(escape(atob(padded)));
+        const data = JSON.parse(decoded);
+        const name = (data.n || '').toString().trim().slice(0, 200);
+        const contact = (data.c || '').toString().trim().slice(0, 200);
+        const message = (data.m || '').toString().trim().slice(0, 4000);
+        if (name && contact && message) {
+          // Подтверждаем отправителю что заявка принята
+          await tgSendMessage(env, chatId,
+            '✅ Спасибо, ' + escapeMd(name) + '! Заявка получена.\n\n' +
+            'Александр свяжется с вами в течение дня. ' +
+            'Если хотите добавить что-то к заявке — просто напишите следующим сообщением.'
+          );
+          // Шлём админу
+          const adminText =
+            '🔥 *Заявка через TG fallback*\n' +
+            '_Источник: deep link (форма не дошла до Worker)_\n\n' +
+            '👤 *Имя:* ' + escapeMd(name) + '\n' +
+            '📱 *Контакт:* ' + escapeMd(contact) + '\n\n' +
+            '💬 *Запрос:*\n' + escapeMd(message) + '\n\n' +
+            '🆔 Telegram ID отправителя: `' + (from.id || '?') + '`';
+          const replyMarkup = from.id ? {
+            inline_keyboard: [[{ text: '💬 Ответить в Telegram', url: 'tg://user?id=' + from.id }]]
+          } : undefined;
+          await tgSendMessage(env, env.ADMIN_CHAT_ID, adminText, replyMarkup);
+          // Параллельно — VK дублирование
+          await vkSendIfConfigured(env, adminText);
+          return new Response('OK');
+        }
+      } catch (_) { /* битый payload — упадём на обычный /start */ }
+    }
+    // Обычный /start без payload
     await tgSendMessage(env, chatId,
       '👋 Здравствуйте! Это бот агентства *Люсъен*.\n\n' +
       'Напишите ваш вопрос — Александр Молчанов, основатель агентства, ответит лично в течение дня.\n\n' +

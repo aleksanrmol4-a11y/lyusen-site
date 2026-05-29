@@ -774,6 +774,27 @@ p  { margin: 0; }
 .form-status { margin-top: 14px; padding: 14px 16px; border-radius: var(--r); font-size: .95rem; display: none; }
 .form-status.ok  { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
 .form-status.err { display: block; background: #FCEEEE; color: #A1283A; border: 1px solid #F1C8CB; }
+.form-status small { display: block; margin-top: 10px; color: #6B6B75; font-size: .82rem; }
+
+.form-fallback-actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 12px;
+}
+.form-fallback-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  font-weight: 700; font-size: .9rem;
+  text-decoration: none;
+  color: #fff !important;
+  transition: transform .15s, box-shadow .2s;
+  flex: 1 1 auto;
+  min-width: 110px;
+}
+.form-fallback-btn:hover { transform: translateY(-1px); }
+.form-fallback-btn.fb-tg   { background: #229ED9; box-shadow: 0 4px 12px rgba(34,158,217,.35); }
+.form-fallback-btn.fb-wa   { background: #25D366; box-shadow: 0 4px 12px rgba(37,211,102,.35); }
+.form-fallback-btn.fb-mail { background: var(--ink); box-shadow: 0 4px 12px rgba(20,20,30,.25); }
 
 /* ============================
    Footer

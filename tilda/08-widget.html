@@ -281,23 +281,19 @@
       var status = document.getElementById('lc-fabFormStatus');
       var ok = false;
       if (typeof window.lcSubmitLeadForm === 'function') {
+        // Используем общую функцию из 07-contact — там полный fallback с deep link на бот
         ok = await window.lcSubmitLeadForm(fabForm, btn, status);
       } else {
-        // Inline-вариант: заявка идёт через Cloudflare Worker (api.telegram.org в РФ заблокирован)
-        var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
+        // Inline-fallback если 07-contact не подключён. Сразу показываем альтернативные каналы,
+        // не пытаемся ходить в сеть (раз 07-contact не вставлен — у клиента, видимо, минимальная сборка).
         function setBox(k,h){ status.className='lc-form-status '+k; status.innerHTML=h; status.style.display=h?'block':'none'; }
-        var d=new FormData(fabForm), name=d.get('name').trim(), contact=d.get('contact').trim(), message=d.get('message').trim(), honeypot=(d.get('website')||'').toString().trim();
+        var d=new FormData(fabForm), name=d.get('name').trim(), contact=d.get('contact').trim(), message=d.get('message').trim();
         if(!name||!contact||!message){ setBox('err','Заполните все поля.'); return; }
-        btn.classList.add('is-loading'); btn.disabled=true;
-        var ctrl=new AbortController(); var tid=setTimeout(function(){ctrl.abort();},12000);
-        try {
-          var r=await fetch(LEAD_ENDPOINT,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:name, contact:contact, message:message, website:honeypot, source:'tilda-fab' }), signal: ctrl.signal });
-          clearTimeout(tid);
-          var j=await r.json().catch(function(){return {};});
-          if(!r.ok || !j.ok) throw new Error(j.error||'Send failed');
-          setBox('ok','✅ Заявка отправлена.'); fabForm.reset(); ok=true;
-        } catch(err){ clearTimeout(tid); setBox('err','Не получилось. Напишите в <a href="https://t.me/AlexLeonidovich1">Telegram</a> или <a href="https://wa.me/79068161172">WhatsApp</a>.'); }
-        btn.classList.remove('is-loading'); btn.disabled=false;
+        function enc(n,c,m){ var j=JSON.stringify({n:n,c:c,m:m}); return btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, ''); }
+        var p = enc(name,contact,message);
+        var tgUrl = p.length<=64 ? 'https://t.me/Alexander_marketing_bot?start='+p : 'https://t.me/Alexander_marketing_bot';
+        var waText = encodeURIComponent('Здравствуйте!\n\nИмя: '+name+'\nКонтакт: '+contact+'\n\n'+message);
+        setBox('err', '<strong>Выберите способ:</strong><div class="lc-form-fallback"><a class="lc-fb-btn lc-fb-tg" href="'+tgUrl+'" target="_blank" rel="noopener">Telegram</a><a class="lc-fb-btn lc-fb-wa" href="https://wa.me/79068161172?text='+waText+'" target="_blank" rel="noopener">WhatsApp</a></div>');
       }
       if (ok) setTimeout(function(){ setModalOpen(false); }, 1800);
     });
