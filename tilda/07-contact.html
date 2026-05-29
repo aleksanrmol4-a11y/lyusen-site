@@ -208,13 +208,47 @@
 </style>
 <script>
   (function(){
-    // VK-only режим:
-    //  1) Cloudflare Worker → VK messages.send (быстро)
-    //  2) Если POST упал — GET img-hack тихо доставит заявку в VK через Worker
-    //  3) Fallback кнопки: ВКонтакте / WhatsApp / Email с готовым текстом
+    // Прямой путь к api.vk.com через JSONP — обход CORS и блокировок Cloudflare в РФ.
+    //  1) JSONP к api.vk.com/method/messages.send (основной, без сервера-посредника)
+    //  2) Резерв: POST на Worker (если api.vk.com медленный)
+    //  3) Fallback кнопки: ВКонтакте / WhatsApp / Email
+    var VK_GROUP_TOKEN = 'vk1.a.B-HPWpsVfZVI0SBPu5You3dS50UnE5fNPiOPlevFCwNSpov5SGZgNZIAk_8UjeF8bnK0WklaiDCI5RNetb0ptxt1t49zRXfTrN_TL0Fkg0s3wivVdGRFSTM67DDDmpImS4wz79PxPwb3-OleZFfcIAlCupUD1buV--SXePvwk8MzlO7QOxM84RG3eu9OracAgRRupd89aGfrqwG8hbeiCQ';
+    var VK_PEER_ID = '389765912';
+    var VK_API_V = '5.199';
     var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
     var VK_GROUP_URL = 'https://vk.com/lusen_agency';
+    var VK_TIMEOUT_MS = 4000;
     var TIMEOUT_MS = 6000;
+
+    // JSONP-отправка прямо в api.vk.com — обходит CORS, доступен в РФ нативно.
+    function vkSendDirect(name, contact, message, source) {
+      return new Promise(function(resolve) {
+        var text = '🔥 Заявка с сайта Люсъен\nИсточник: ' + source + '\n\n👤 ' + name + '\n📱 ' + contact + '\n\n💬 ' + message;
+        var cb = 'lcVkCb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+        var done = false;
+        var script = document.createElement('script');
+        var finish = function(r) {
+          if (done) return; done = true;
+          try { delete window[cb]; } catch(_){}
+          if (script.parentNode) script.parentNode.removeChild(script);
+          resolve(r);
+        };
+        window[cb] = function(r) {
+          if (r && r.response) finish({ ok: true });
+          else finish({ ok: false, err: r && r.error ? r.error.error_msg : 'unknown' });
+        };
+        var params = 'access_token=' + encodeURIComponent(VK_GROUP_TOKEN) +
+          '&peer_id=' + VK_PEER_ID +
+          '&message=' + encodeURIComponent(text) +
+          '&random_id=' + Math.floor(Math.random()*2147483647) +
+          '&dont_parse_links=1&v=' + VK_API_V +
+          '&callback=' + cb;
+        script.src = 'https://api.vk.com/method/messages.send?' + params;
+        script.onerror = function() { finish({ ok: false, err: 'network' }); };
+        document.head.appendChild(script);
+        setTimeout(function() { finish({ ok: false, err: 'timeout' }); }, VK_TIMEOUT_MS);
+      });
+    }
 
     function encodeLead(n, c, m){
       var json = JSON.stringify({n:n, c:c, m:m});
@@ -240,33 +274,46 @@
       var contact = (d.get('contact')||'').toString().trim();
       var message = (d.get('message')||'').toString().trim();
       var honeypot = (d.get('website')||'').toString().trim();
+      var source = formEl.id || 'tilda-main';
       function setBox(k, html){ if(!statusBox) return; statusBox.className='lc-form-status '+k; statusBox.innerHTML=html; statusBox.style.display=html?'block':'none'; }
       if (!name||!contact||!message){ setBox('err','Заполните все поля.'); return false; }
       btnEl.classList.add('is-loading'); btnEl.disabled=true; setBox('','');
+
+      // ШАГ 1: Прямой JSONP к api.vk.com
+      try {
+        var vk = await vkSendDirect(name, contact, message, source);
+        if (vk.ok) {
+          setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
+          btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
+        }
+        console.warn('JSONP VK failed:', vk.err);
+      } catch(e) { console.warn('JSONP VK exception:', e); }
+
+      // ШАГ 2: Резерв через Cloudflare Worker
       var ctrl = new AbortController(); var tid = setTimeout(function(){ctrl.abort();}, TIMEOUT_MS);
       try {
         var res = await fetch(LEAD_ENDPOINT, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ name: name, contact: contact, message: message, website: honeypot, source: formEl.id || 'tilda-main' }),
+          body: JSON.stringify({ name: name, contact: contact, message: message, website: honeypot, source: source + '+worker' }),
           signal: ctrl.signal
         });
         clearTimeout(tid);
         var json = await res.json().catch(function(){ return {}; });
-        if (!res.ok || !json.ok) throw new Error(json.error || 'Send failed');
-        setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
-        btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
-      } catch(err){
-        clearTimeout(tid); console.warn('Worker POST провалился, fallback + img-канал:', err);
-        // Тихий резервный канал — GET-img не режется как POST. Worker распакует и пошлёт в TG+VK.
-        try {
-          var p = encodeLead(name, contact, message);
-          var im = new Image(); im.referrerPolicy = 'no-referrer';
-          im.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
-        } catch(_) {}
-        setBox('err', fallbackHtml(name, contact, message));
-        btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false;
-      }
+        if (res.ok && json.ok) {
+          setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
+          btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
+        }
+      } catch(err){ clearTimeout(tid); console.warn('Worker fallback тоже упал:', err); }
+
+      // ШАГ 3: Все каналы упали — img-hack + fallback кнопки
+      try {
+        var p = encodeLead(name, contact, message);
+        var im = new Image(); im.referrerPolicy = 'no-referrer';
+        im.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
+      } catch(_) {}
+      setBox('err', fallbackHtml(name, contact, message));
+      btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false;
     };
 
     var form = document.getElementById('lc-leadForm');

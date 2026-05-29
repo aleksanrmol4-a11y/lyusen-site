@@ -1,11 +1,55 @@
 // ---- config ----
-// VK-only режим. Worker → messages.send → ВКонтакте.
-//  1) POST на Worker (быстро)
-//  2) Если POST упал — img-hack через GET /lead?p=base64 (тихий резерв)
-//  3) Если и это не сработало — fallback с прямыми ссылками на VK / WhatsApp / Email
+// Прямой путь к api.vk.com через JSONP — обходит CORS и Cloudflare-блокировки в РФ.
+// Иерархия каналов:
+//  1) JSONP к api.vk.com/method/messages.send (основной, 3 сек)
+//  2) POST на Worker (резерв если api.vk.com медленный)
+//  3) Fallback кнопки: ВКонтакте / WhatsApp / Email
+const VK_GROUP_TOKEN      = 'vk1.a.B-HPWpsVfZVI0SBPu5You3dS50UnE5fNPiOPlevFCwNSpov5SGZgNZIAk_8UjeF8bnK0WklaiDCI5RNetb0ptxt1t49zRXfTrN_TL0Fkg0s3wivVdGRFSTM67DDDmpImS4wz79PxPwb3-OleZFfcIAlCupUD1buV--SXePvwk8MzlO7QOxM84RG3eu9OracAgRRupd89aGfrqwG8hbeiCQ';
+const VK_PEER_ID          = '389765912';
+const VK_API_VERSION      = '5.199';
 const LEAD_ENDPOINT       = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
 const VK_GROUP_URL        = 'https://vk.com/lusen_agency';
+const VK_TIMEOUT_MS       = 4000;
 const SEND_TIMEOUT_MS     = 6000;
+
+// Прямая отправка в VK через JSONP — обход всех блокировок РФ.
+// Возвращает {ok:true} если VK принял, {ok:false, err} иначе.
+function lcVkSendDirect(name, contact, message, source) {
+  return new Promise((resolve) => {
+    const text =
+      '🔥 Заявка с сайта Люсъен\n' +
+      'Источник: ' + source + '\n\n' +
+      '👤 ' + name + '\n' +
+      '📱 ' + contact + '\n\n' +
+      '💬 ' + message;
+    const cb = 'lcVkCb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+    let done = false;
+    const finish = (result) => {
+      if (done) return; done = true;
+      try { delete window[cb]; } catch(_){}
+      if (script.parentNode) script.parentNode.removeChild(script);
+      resolve(result);
+    };
+    window[cb] = (r) => {
+      if (r && r.response) finish({ ok: true, msgId: r.response });
+      else finish({ ok: false, err: (r && r.error) ? r.error.error_msg : 'unknown' });
+    };
+    const params = [
+      'access_token=' + encodeURIComponent(VK_GROUP_TOKEN),
+      'peer_id=' + VK_PEER_ID,
+      'message=' + encodeURIComponent(text),
+      'random_id=' + Math.floor(Math.random() * 2147483647),
+      'dont_parse_links=1',
+      'v=' + VK_API_VERSION,
+      'callback=' + cb
+    ].join('&');
+    const script = document.createElement('script');
+    script.src = 'https://api.vk.com/method/messages.send?' + params;
+    script.onerror = () => finish({ ok: false, err: 'network' });
+    document.head.appendChild(script);
+    setTimeout(() => finish({ ok: false, err: 'timeout' }), VK_TIMEOUT_MS);
+  });
+}
 
 // ---- year ----
 const yearEl = document.getElementById('year');
@@ -183,9 +227,26 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
   btnEl.disabled = true;
   setBox('', '');
 
+  const source = formEl.id || 'web';
+
+  // ───── ШАГ 1: Прямой JSONP к api.vk.com (быстро, без CORS, без Cloudflare) ─────
+  try {
+    const vk = await lcVkSendDirect(name, contact, message, source);
+    if (vk.ok) {
+      setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
+      formEl.reset();
+      btnEl.classList.remove('is-loading');
+      btnEl.disabled = false;
+      return true;
+    }
+    console.warn('JSONP VK failed:', vk.err);
+  } catch (e) {
+    console.warn('JSONP VK exception:', e);
+  }
+
+  // ───── ШАГ 2: Резерв через Cloudflare Worker ─────
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
-
   try {
     const res = await fetch(LEAD_ENDPOINT, {
       method: 'POST',
@@ -193,34 +254,35 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
       body: JSON.stringify({
         name: name, contact: contact, message: message,
         website: honeypot,
-        source: formEl.id || 'web'
+        source: source + '+worker'
       }),
       signal: controller.signal
     });
     clearTimeout(timeoutId);
     const json = await res.json().catch(() => ({}));
-    if (!res.ok || !json.ok) throw new Error(json.error || 'Send failed');
-    setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
-    formEl.reset();
-    btnEl.classList.remove('is-loading');
-    btnEl.disabled = false;
-    return true;
+    if (res.ok && json.ok) {
+      setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
+      formEl.reset();
+      btnEl.classList.remove('is-loading');
+      btnEl.disabled = false;
+      return true;
+    }
   } catch (err) {
     clearTimeout(timeoutId);
-    console.warn('Worker POST провалился, fallback + img-канал:', err);
-    // Тихий резервный канал: img-запрос (GET) не блокируется как POST, проходит через
-    // корпоративные фильтры и DNS-резолверы. Worker распакует payload и пошлёт в TG+VK.
-    try {
-      const p = lcEncodeLead(name, contact, message);
-      const img = new Image();
-      img.referrerPolicy = 'no-referrer';
-      img.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
-    } catch (_) {}
-    setBox('err', lcFallbackHtml(name, contact, message));
-    btnEl.classList.remove('is-loading');
-    btnEl.disabled = false;
-    return false;
+    console.warn('Worker fallback тоже упал:', err);
   }
+
+  // ───── ШАГ 3: Все каналы упали — тихо дёргаем img-hack + показываем кнопки ─────
+  try {
+    const p = lcEncodeLead(name, contact, message);
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
+  } catch (_) {}
+  setBox('err', lcFallbackHtml(name, contact, message));
+  btnEl.classList.remove('is-loading');
+  btnEl.disabled = false;
+  return false;
 }
 
 const fabForm = document.getElementById('fabForm');
