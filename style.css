@@ -792,7 +792,7 @@ p  { margin: 0; }
   min-width: 110px;
 }
 .form-fallback-btn:hover { transform: translateY(-1px); }
-.form-fallback-btn.fb-tg   { background: #229ED9; box-shadow: 0 4px 12px rgba(34,158,217,.35); }
+.form-fallback-btn.fb-vk   { background: #0077FF; box-shadow: 0 4px 12px rgba(0,119,255,.35); }
 .form-fallback-btn.fb-wa   { background: #25D366; box-shadow: 0 4px 12px rgba(37,211,102,.35); }
 .form-fallback-btn.fb-mail { background: var(--ink); box-shadow: 0 4px 12px rgba(20,20,30,.25); }
 

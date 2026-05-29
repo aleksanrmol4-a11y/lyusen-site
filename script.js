@@ -1,13 +1,11 @@
 // ---- config ----
-// Многоуровневая стратегия доставки заявки в РФ:
-//  1) пробуем Worker (быстро, у большинства работает)
-//  2) если не получилось — открываем Telegram-бот с предзаполненной заявкой через deep link ?start=base64
-//     бот сам пересылает её админу
-//  3) параллельно — резервные кнопки WhatsApp и mailto
-// Так заявка не теряется даже если Cloudflare режут провайдеры.
+// VK-only режим. Worker → messages.send → ВКонтакте.
+//  1) POST на Worker (быстро)
+//  2) Если POST упал — img-hack через GET /lead?p=base64 (тихий резерв)
+//  3) Если и это не сработало — fallback с прямыми ссылками на VK / WhatsApp / Email
 const LEAD_ENDPOINT       = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
-const TG_BOT_USERNAME     = 'Alexander_marketing_bot';
-const SEND_TIMEOUT_MS     = 6000;  // короче чем раньше — быстрее переходим к fallback
+const VK_GROUP_URL        = 'https://vk.com/lusen_agency';
+const SEND_TIMEOUT_MS     = 6000;
 
 // ---- year ----
 const yearEl = document.getElementById('year');
@@ -136,34 +134,25 @@ if (fabModal) {
   });
 }
 
-// Кодирует {name,contact,message} в base64url-payload для deep link Telegram-бота.
-// Бот принимает payload через /start=<payload> и шлёт админу.
+// Кодирует {name,contact,message} в base64url для GET-резерва (img-hack)
 function lcEncodeLead(name, contact, message) {
   const json = JSON.stringify({ n: name, c: contact, m: message });
-  // utf-8 → base64 → base64url
   const b64 = btoa(unescape(encodeURIComponent(json)));
   return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-// Резервная плашка с тремя кнопками: TG-бот (с deep link), WhatsApp, mailto.
-// Заявка не теряется ни в одном из этих сценариев.
+// Fallback: ВКонтакте (написать в сообщество) + WhatsApp + Email с предзаполненным текстом.
 function lcFallbackHtml(name, contact, message) {
-  const tgPayload = lcEncodeLead(name, contact, message);
-  // Telegram ограничивает start-параметр 64 символами. Если влезает — используем deep link,
-  // иначе просто открываем чат с ботом, пользователь увидит подсказку и пришлёт текст вручную.
-  const tgUrl = tgPayload.length <= 64
-    ? 'https://t.me/' + TG_BOT_USERNAME + '?start=' + tgPayload
-    : 'https://t.me/' + TG_BOT_USERNAME;
   const waText = encodeURIComponent('Здравствуйте! Хочу обсудить:\n\nИмя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message);
   const mailBody = encodeURIComponent('Имя: ' + name + '\nКонтакт: ' + contact + '\n\n' + message);
   return (
-    '<strong>Сеть подвела — выберите альтернативный способ:</strong><br>' +
+    '<strong>Сеть подвела — напишите напрямую:</strong><br>' +
     '<div class="form-fallback-actions">' +
-    '<a class="form-fallback-btn fb-tg" href="' + tgUrl + '" target="_blank" rel="noopener">Открыть в Telegram</a>' +
+    '<a class="form-fallback-btn fb-vk" href="' + VK_GROUP_URL + '" target="_blank" rel="noopener">ВКонтакте</a>' +
     '<a class="form-fallback-btn fb-wa" href="https://wa.me/79068161172?text=' + waText + '" target="_blank" rel="noopener">WhatsApp</a>' +
     '<a class="form-fallback-btn fb-mail" href="mailto:compalekks@gmail.com?subject=' + encodeURIComponent('Заявка с сайта') + '&body=' + mailBody + '">Email</a>' +
     '</div>' +
-    '<small>Заявка уже подготовлена — просто нажмите «Отправить» в выбранном приложении.</small>'
+    '<small>В WhatsApp и Email заявка уже подготовлена — просто нажмите «Отправить».</small>'
   );
 }
 

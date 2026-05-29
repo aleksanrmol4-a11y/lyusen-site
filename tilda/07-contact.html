@@ -167,7 +167,6 @@
         <h2>Поговорим о&nbsp;вашем бизнесе</h2>
         <p class="lc-contact-lead">Опишите задачу — в течение дня вернёмся с предложением, ценой и сроками. Без долгих брифов.</p>
         <ul class="lc-contact-list">
-          <li><span class="lc-contact-label">Telegram</span><a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">@AlexLeonidovich1</a></li>
           <li><span class="lc-contact-label">WhatsApp</span><a href="https://wa.me/79068161172" target="_blank" rel="noopener">+7 906 816-11-72</a></li>
           <li><span class="lc-contact-label">Телефон</span><a href="tel:+79935311172">+7 993 531-11-72</a></li>
           <li><span class="lc-contact-label">Email</span><a href="mailto:compalekks@gmail.com">compalekks@gmail.com</a></li>
@@ -202,18 +201,18 @@
   .lc-form-fallback { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .lc-fb-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: .9rem; text-decoration: none !important; color: #ffffff !important; transition: transform .15s; flex: 1 1 auto; min-width: 110px; }
   .lc-fb-btn:hover { transform: translateY(-1px); }
-  .lc-fb-tg { background: #229ED9 !important; box-shadow: 0 4px 12px rgba(34,158,217,.35); }
+  .lc-fb-vk { background: #0077FF !important; box-shadow: 0 4px 12px rgba(0,119,255,.35); }
   .lc-fb-wa { background: #25D366 !important; box-shadow: 0 4px 12px rgba(37,211,102,.35); }
   .lc-fb-mail { background: #15151B !important; box-shadow: 0 4px 12px rgba(20,20,30,.25); }
 </style>
 <script>
   (function(){
-    // Многоуровневая доставка заявки в РФ:
-    //  1) Cloudflare Worker → Telegram (быстро, если открыт)
-    //  2) Fallback — deep link на Telegram-бот с предзаполненной заявкой + WhatsApp + mailto
-    //     Так заявка не теряется даже если Cloudflare режется у клиента.
+    // VK-only режим:
+    //  1) Cloudflare Worker → VK messages.send (быстро)
+    //  2) Если POST упал — GET img-hack тихо доставит заявку в VK через Worker
+    //  3) Fallback кнопки: ВКонтакте / WhatsApp / Email с готовым текстом
     var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
-    var TG_BOT = 'Alexander_marketing_bot';
+    var VK_GROUP_URL = 'https://vk.com/lusen_agency';
     var TIMEOUT_MS = 6000;
 
     function encodeLead(n, c, m){
@@ -222,17 +221,15 @@
       return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, '');
     }
     function fallbackHtml(n, c, m){
-      var p = encodeLead(n, c, m);
-      var tgUrl = p.length <= 64 ? 'https://t.me/'+TG_BOT+'?start='+p : 'https://t.me/'+TG_BOT;
       var waText = encodeURIComponent('Здравствуйте! Хочу обсудить:\n\nИмя: '+n+'\nКонтакт: '+c+'\n\n'+m);
       var mailBody = encodeURIComponent('Имя: '+n+'\nКонтакт: '+c+'\n\n'+m);
-      return '<strong>Сеть подвела — выберите альтернативный способ:</strong>'+
+      return '<strong>Сеть подвела — напишите напрямую:</strong>'+
         '<div class="lc-form-fallback">'+
-        '<a class="lc-fb-btn lc-fb-tg" href="'+tgUrl+'" target="_blank" rel="noopener">Открыть в Telegram</a>'+
+        '<a class="lc-fb-btn lc-fb-vk" href="'+VK_GROUP_URL+'" target="_blank" rel="noopener">ВКонтакте</a>'+
         '<a class="lc-fb-btn lc-fb-wa" href="https://wa.me/79068161172?text='+waText+'" target="_blank" rel="noopener">WhatsApp</a>'+
         '<a class="lc-fb-btn lc-fb-mail" href="mailto:compalekks@gmail.com?subject='+encodeURIComponent('Заявка с сайта')+'&body='+mailBody+'">Email</a>'+
         '</div>'+
-        '<small>Заявка уже подготовлена — просто нажмите «Отправить» в выбранном приложении.</small>';
+        '<small>В WhatsApp и Email заявка уже подготовлена — просто нажмите «Отправить».</small>';
     }
 
     window.lcSubmitLeadForm = async function(formEl, btnEl, statusBox){
