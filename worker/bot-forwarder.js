@@ -19,23 +19,13 @@
  *   - SECRET_TOKEN: секрет для верификации webhook от Telegram (X-Telegram-Bot-Api-Secret-Token)
  */
 
-const ALLOWED_ORIGINS = [
-  'https://lyusen18.ru',
-  'https://www.lyusen18.ru',
-  'https://aleksanrmol4-a11y.github.io',
-  // raw.githack для preview-режима — карты, чтобы можно было тестить прямо со ссылки на ветку
-  'https://raw.githack.com',
-  // Тильда preview-домены
-  'https://project-tilda.com',
-];
-
+// CORS: открыт для всех Origin'ов. Защита от спама — honeypot-поле и валидация payload.
+// Так нет рисков что какой-то Origin отвалится из-за whitelist.
 function corsHeaders(origin) {
-  // Разрешаем явный список + любой *.tilda.ws (proj17345.tilda.ws и т.п.)
-  const allow = (origin && (ALLOWED_ORIGINS.includes(origin) || /\.tilda\.(ws|com)$/.test(new URL(origin).hostname))) ? origin : '*';
   return {
-    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Origin': origin || '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Lyusen-Source',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Lyusen-Source, Accept',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
