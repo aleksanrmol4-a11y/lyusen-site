@@ -259,7 +259,13 @@
         setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
         btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
       } catch(err){
-        clearTimeout(tid); console.warn('Worker недоступен, fallback:', err);
+        clearTimeout(tid); console.warn('Worker POST провалился, fallback + img-канал:', err);
+        // Тихий резервный канал — GET-img не режется как POST. Worker распакует и пошлёт в TG+VK.
+        try {
+          var p = encodeLead(name, contact, message);
+          var im = new Image(); im.referrerPolicy = 'no-referrer';
+          im.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
+        } catch(_) {}
         setBox('err', fallbackHtml(name, contact, message));
         btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false;
       }

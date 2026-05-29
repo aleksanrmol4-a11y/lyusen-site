@@ -218,7 +218,15 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     return true;
   } catch (err) {
     clearTimeout(timeoutId);
-    console.warn('Worker недоступен, показываем fallback:', err);
+    console.warn('Worker POST провалился, fallback + img-канал:', err);
+    // Тихий резервный канал: img-запрос (GET) не блокируется как POST, проходит через
+    // корпоративные фильтры и DNS-резолверы. Worker распакует payload и пошлёт в TG+VK.
+    try {
+      const p = lcEncodeLead(name, contact, message);
+      const img = new Image();
+      img.referrerPolicy = 'no-referrer';
+      img.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
+    } catch (_) {}
     setBox('err', lcFallbackHtml(name, contact, message));
     btnEl.classList.remove('is-loading');
     btnEl.disabled = false;

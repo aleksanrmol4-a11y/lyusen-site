@@ -42,6 +42,11 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
+    // ─── GET /lead?p=base64 — резервный канал (img-hack для обхода блокировок POST) ───
+    if (request.method === 'GET' && path === '/lead') {
+      return handleLeadGet(request, env, origin);
+    }
+
     // ─── Healthcheck ───
     if (request.method === 'GET') {
       return new Response('OK — Lyusen bot forwarder. POST /lead для заявок, POST / для Telegram webhook.', {
@@ -63,6 +68,63 @@ export default {
     return new Response('Method Not Allowed', { status: 405, headers: corsHeaders(origin) });
   }
 };
+
+// ═══════════════════════════════════════════════════════════
+// ─── GET /lead?p=base64payload — резервный канал (img-hack) ───
+// ═══════════════════════════════════════════════════════════
+// Простой GET не требует CORS preflight и не блокируется большинством корпоративных
+// фильтров. Используется когда POST /lead зафейлился. Возвращает 1×1 прозрачный gif,
+// чтобы можно было дергать через <img src=...>.
+async function handleLeadGet(request, env, origin) {
+  const url = new URL(request.url);
+  const p = url.searchParams.get('p');
+  // Прозрачный 1×1 GIF
+  const gif = new Uint8Array([
+    0x47,0x49,0x46,0x38,0x39,0x61, 0x01,0x00,0x01,0x00, 0x80,0x00,0x00,
+    0xff,0xff,0xff, 0x00,0x00,0x00,
+    0x21,0xf9,0x04, 0x01,0x00,0x00,0x00,0x00,
+    0x2c, 0x00,0x00,0x00,0x00, 0x01,0x00,0x01,0x00, 0x00, 0x02,0x02, 0x44,0x01, 0x00,0x3b
+  ]);
+  const gifResp = () => new Response(gif, {
+    status: 200,
+    headers: {
+      'Content-Type': 'image/gif',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Access-Control-Allow-Origin': origin || '*'
+    }
+  });
+
+  if (!p) return gifResp();
+
+  try {
+    const b64 = p.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '='.repeat((4 - b64.length % 4) % 4);
+    const decoded = decodeURIComponent(escape(atob(padded)));
+    const data = JSON.parse(decoded);
+    const name = (data.n || '').toString().trim().slice(0, 200);
+    const contact = (data.c || '').toString().trim().slice(0, 200);
+    const message = (data.m || '').toString().trim().slice(0, 4000);
+    if (!name || !contact || !message) return gifResp();
+
+    const text =
+      '🔥 *Заявка через GET fallback*\n' +
+      '_Источник: img-hack (POST не прошёл)_\n\n' +
+      '👤 *Имя:* ' + escapeMd(name) + '\n' +
+      '📱 *Контакт:* ' + escapeMd(contact) + '\n\n' +
+      '💬 *Запрос:*\n' + escapeMd(message);
+
+    // Шлём параллельно в TG и VK — но не ждём результата, сразу возвращаем gif
+    // чтобы img загрузился у клиента без задержки.
+    request.waitUntil = request.waitUntil || ((p) => p);
+    Promise.all([
+      tgSendMessage(env, env.ADMIN_CHAT_ID, text),
+      vkSendIfConfigured(env, text)
+    ]).catch((e) => console.error('GET /lead send error:', e));
+  } catch (e) {
+    console.error('GET /lead parse error:', e);
+  }
+  return gifResp();
+}
 
 // ═══════════════════════════════════════════════════════════
 // ─── Обработчик заявки с формы (POST /lead) ───
