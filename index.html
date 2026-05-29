@@ -593,6 +593,9 @@
         <h3>Получить стратегию</h3>
         <p class="form-sub">Заявка прилетит лично основателю агентства.</p>
 
+        <!-- honeypot против ботов -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
+
         <label class="field">
           <span>Как вас зовут</span>
           <input type="text" name="name" required autocomplete="name" placeholder="Александр">
@@ -682,6 +685,8 @@
     <h3 id="fabFormTitle">Связаться с нами</h3>
     <p class="form-sub">Оставьте контакт — ответим за день.</p>
     <form id="fabForm" class="lead-form fab-form-inner" novalidate>
+      <!-- honeypot против ботов -->
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
       <label class="field">
         <span>Как вас зовут</span>
         <input type="text" name="name" required autocomplete="name" placeholder="Александр">

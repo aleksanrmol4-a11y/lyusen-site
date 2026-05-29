@@ -1,116 +1,206 @@
 /**
  * Cloudflare Worker для бота @Alexander_marketing_bot
  *
- * Что делает:
- *   1. Принимает webhook от Telegram, когда кто-то пишет боту.
- *   2. Пересылает сообщение в личный чат админа (Александра) с понятным форматированием:
- *      кто написал, его username/id, сам текст, кнопка "Открыть чат".
- *   3. Команда /start у бота → выдаёт приветственное сообщение и ссылку на сайт.
+ * РОУТИНГ:
+ *   POST /           — webhook Telegram (сообщения боту пересылаются админу)
+ *   POST /lead       — приём заявки с формы сайта (фронт стучит сюда, Worker шлёт в Telegram)
+ *   OPTIONS /lead    — CORS preflight
+ *   GET /            — healthcheck
  *
- * Что НЕ делает (можно добавить позже):
- *   - Не пересылает фото/видео/аудио — только текст. Media передаёт через forwardMessage.
- *   - Не сохраняет историю переписки.
- *   - Не позволяет админу отвечать через бота (нужен state, см. v2).
+ * Решает проблему: api.telegram.org заблокирован в РФ без VPN. Раньше форма ходила напрямую,
+ * с российских IP не работало. Теперь форма стучит на Worker (Cloudflare CDN не блокируется),
+ * а Worker уже сам идёт в Telegram с серверной стороны.
  *
- * Env vars (задаются в настройках Worker'а):
- *   - BOT_TOKEN: токен бота от @BotFather (7818572051:AAEoWoizhJybzlOgGmFmlJjrJ4A4AqQ2Lx0)
+ * Дополнительный плюс: токен бота больше не в публичном JS, а только в env Worker'а.
+ *
+ * Env vars:
+ *   - BOT_TOKEN: токен бота от @BotFather
  *   - ADMIN_CHAT_ID: chat_id админа куда пересылать (666070596)
- *   - SECRET_TOKEN: секрет для верификации webhook (любая случайная строка)
+ *   - SECRET_TOKEN: секрет для верификации webhook от Telegram (X-Telegram-Bot-Api-Secret-Token)
  */
+
+const ALLOWED_ORIGINS = [
+  'https://lyusen18.ru',
+  'https://www.lyusen18.ru',
+  'https://aleksanrmol4-a11y.github.io',
+  // raw.githack для preview-режима — карты, чтобы можно было тестить прямо со ссылки на ветку
+  'https://raw.githack.com',
+  // Тильда preview-домены
+  'https://project-tilda.com',
+];
+
+function corsHeaders(origin) {
+  // Разрешаем явный список + любой *.tilda.ws (proj17345.tilda.ws и т.п.)
+  const allow = (origin && (ALLOWED_ORIGINS.includes(origin) || /\.tilda\.(ws|com)$/.test(new URL(origin).hostname))) ? origin : '*';
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Lyusen-Source',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin'
+  };
+}
 
 export default {
   async fetch(request, env) {
-    // Только POST от Telegram
-    if (request.method !== 'POST') {
-      return new Response('OK — Lyusen bot forwarder. Use POST for webhook.', { status: 200 });
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/\/+$/, '') || '/';
+    const origin = request.headers.get('Origin') || '';
+
+    // ─── CORS preflight ───
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    // Верификация что это реально Telegram (защита от чужих POST на наш URL)
-    const secretHeader = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
-    if (env.SECRET_TOKEN && secretHeader !== env.SECRET_TOKEN) {
-      return new Response('Forbidden', { status: 403 });
+    // ─── Healthcheck ───
+    if (request.method === 'GET') {
+      return new Response('OK — Lyusen bot forwarder. POST /lead для заявок, POST / для Telegram webhook.', {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
     }
 
-    let update;
-    try {
-      update = await request.json();
-    } catch (e) {
-      return new Response('Bad request', { status: 400 });
+    // ─── Заявка с формы сайта ───
+    if (request.method === 'POST' && path === '/lead') {
+      return handleLead(request, env, origin);
     }
 
-    const msg = update.message;
-    if (!msg) return new Response('OK');
-
-    const from = msg.from || {};
-    const chatId = msg.chat.id;
-    const isFromAdmin = String(chatId) === String(env.ADMIN_CHAT_ID);
-
-    // ───── Команда /start ─────
-    if (msg.text === '/start') {
-      await tgSendMessage(env, chatId,
-        '👋 Здравствуйте! Это бот агентства *Люсъен*.\n\n' +
-        'Напишите ваш вопрос — Александр Молчанов, основатель агентства, ответит лично в течение дня.\n\n' +
-        'Или сразу опишите задачу:\n' +
-        '• какой у вас бизнес\n' +
-        '• какая задача (продвижение / реклама / сайт / контент)\n' +
-        '• какой бюджет на маркетинг в месяц\n\n' +
-        '🌐 [Сайт агентства](https://aleksanrmol4-a11y.github.io/lyusen-site/)'
-      );
-      return new Response('OK');
+    // ─── Webhook от Telegram (по умолчанию) ───
+    if (request.method === 'POST') {
+      return handleTelegramWebhook(request, env);
     }
 
-    // ───── Если пишет сам админ — не пересылаем себе же ─────
-    if (isFromAdmin) {
-      await tgSendMessage(env, chatId,
-        'ℹ️ Это бот для приёма заявок. Когда вам кто-то напишет — сообщение прилетит сюда. ' +
-        'Чтобы ответить — откройте профиль клиента (ссылка `tg://user?id=...` в каждой пересылке).'
-      );
-      return new Response('OK');
-    }
-
-    // ───── Пересылка админу ─────
-    const senderName = [from.first_name, from.last_name].filter(Boolean).join(' ') || 'без имени';
-    const senderUsername = from.username ? '@' + from.username : '_username не указан_';
-    const senderId = from.id;
-
-    const text = msg.text || '_[не текст — фото/видео/файл, см. оригинал ниже]_';
-
-    const forwardText =
-      '💬 *Новое сообщение боту*\n\n' +
-      '👤 *От:* ' + escapeMd(senderName) + '\n' +
-      '🔗 *Username:* ' + senderUsername + '\n' +
-      '🆔 *ID:* `' + senderId + '`\n\n' +
-      '📝 *Сообщение:*\n' + escapeMd(text);
-
-    // Inline-кнопка "Открыть чат"
-    const replyMarkup = {
-      inline_keyboard: [[
-        { text: '💬 Ответить в Telegram', url: 'tg://user?id=' + senderId }
-      ]]
-    };
-
-    await tgSendMessage(env, env.ADMIN_CHAT_ID, forwardText, replyMarkup);
-
-    // Если это медиа — отдельно пересылаем оригинал (forwardMessage даёт точную копию)
-    if (!msg.text) {
-      await tgForwardMessage(env, env.ADMIN_CHAT_ID, chatId, msg.message_id);
-    }
-
-    // Подтверждение отправителю
-    await tgSendMessage(env, chatId,
-      '✅ Спасибо, ваше сообщение принято. Александр свяжется с вами в течение дня.'
-    );
-
-    return new Response('OK');
+    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders(origin) });
   }
 };
 
-// ───── helpers ─────
+// ═══════════════════════════════════════════════════════════
+// ─── Обработчик заявки с формы (POST /lead) ───
+// ═══════════════════════════════════════════════════════════
+async function handleLead(request, env, origin) {
+  const cors = corsHeaders(origin);
+  const json = (status, body) => new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' }
+  });
 
+  let payload;
+  try { payload = await request.json(); }
+  catch { return json(400, { ok: false, error: 'bad_json' }); }
+
+  // ─── Honeypot против ботов: поле website должно быть пустым ───
+  if (payload.website) {
+    // Тихо отвечаем "ok" чтобы спам-бот не понял что попался
+    return json(200, { ok: true });
+  }
+
+  const name = (payload.name || '').toString().trim().slice(0, 200);
+  const contact = (payload.contact || '').toString().trim().slice(0, 200);
+  const message = (payload.message || '').toString().trim().slice(0, 4000);
+  const source = (payload.source || 'web').toString().trim().slice(0, 40);
+
+  if (!name || !contact || !message) {
+    return json(400, { ok: false, error: 'missing_fields' });
+  }
+
+  const text =
+    '🔥 *Новая заявка с сайта Люсъен*\n' +
+    '_Источник: ' + escapeMd(source) + '_\n\n' +
+    '👤 *Имя:* ' + escapeMd(name) + '\n' +
+    '📱 *Контакт:* ' + escapeMd(contact) + '\n\n' +
+    '💬 *Запрос:*\n' + escapeMd(message);
+
+  try {
+    const tg = await tgSendMessage(env, env.ADMIN_CHAT_ID, text);
+    const tgJson = await tg.json();
+    if (!tgJson.ok) {
+      console.error('TG error:', tgJson);
+      return json(502, { ok: false, error: 'telegram_failed' });
+    }
+    return json(200, { ok: true });
+  } catch (err) {
+    console.error('Worker error:', err);
+    return json(500, { ok: false, error: 'server_error' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ─── Webhook Telegram (POST /, секрет в заголовке) ───
+// ═══════════════════════════════════════════════════════════
+async function handleTelegramWebhook(request, env) {
+  // Верификация что POST реально от Telegram
+  const secretHeader = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+  if (env.SECRET_TOKEN && secretHeader !== env.SECRET_TOKEN) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  let update;
+  try { update = await request.json(); } catch { return new Response('Bad request', { status: 400 }); }
+  const msg = update.message;
+  if (!msg) return new Response('OK');
+
+  const from = msg.from || {};
+  const chatId = msg.chat.id;
+  const isFromAdmin = String(chatId) === String(env.ADMIN_CHAT_ID);
+
+  // /start
+  if (msg.text === '/start') {
+    await tgSendMessage(env, chatId,
+      '👋 Здравствуйте! Это бот агентства *Люсъен*.\n\n' +
+      'Напишите ваш вопрос — Александр Молчанов, основатель агентства, ответит лично в течение дня.\n\n' +
+      'Или сразу опишите задачу:\n' +
+      '• какой у вас бизнес\n' +
+      '• какая задача (продвижение / реклама / сайт / контент)\n' +
+      '• какой бюджет на маркетинг в месяц\n\n' +
+      '🌐 [Сайт агентства](https://lyusen18.ru/)'
+    );
+    return new Response('OK');
+  }
+
+  if (isFromAdmin) {
+    await tgSendMessage(env, chatId,
+      'ℹ️ Это бот для приёма заявок. Когда вам кто-то напишет — сообщение прилетит сюда. ' +
+      'Чтобы ответить — откройте профиль клиента (ссылка `tg://user?id=...` в каждой пересылке).'
+    );
+    return new Response('OK');
+  }
+
+  const senderName = [from.first_name, from.last_name].filter(Boolean).join(' ') || 'без имени';
+  const senderUsername = from.username ? '@' + from.username : '_username не указан_';
+  const senderId = from.id;
+  const text = msg.text || '_[не текст — фото/видео/файл, см. оригинал ниже]_';
+
+  const forwardText =
+    '💬 *Новое сообщение боту*\n\n' +
+    '👤 *От:* ' + escapeMd(senderName) + '\n' +
+    '🔗 *Username:* ' + senderUsername + '\n' +
+    '🆔 *ID:* `' + senderId + '`\n\n' +
+    '📝 *Сообщение:*\n' + escapeMd(text);
+
+  const replyMarkup = {
+    inline_keyboard: [[{ text: '💬 Ответить в Telegram', url: 'tg://user?id=' + senderId }]]
+  };
+
+  await tgSendMessage(env, env.ADMIN_CHAT_ID, forwardText, replyMarkup);
+
+  if (!msg.text) {
+    await tgForwardMessage(env, env.ADMIN_CHAT_ID, chatId, msg.message_id);
+  }
+
+  await tgSendMessage(env, chatId,
+    '✅ Спасибо, ваше сообщение принято. Александр свяжется с вами в течение дня.'
+  );
+
+  return new Response('OK');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ─── helpers ───
+// ═══════════════════════════════════════════════════════════
 async function tgSendMessage(env, chatId, text, replyMarkup) {
   const body = {
     chat_id: chatId,
-    text: text,
+    text,
     parse_mode: 'Markdown',
     disable_web_page_preview: true
   };
@@ -127,11 +217,7 @@ async function tgForwardMessage(env, toChatId, fromChatId, messageId) {
   return fetch('https://api.telegram.org/bot' + env.BOT_TOKEN + '/forwardMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: toChatId,
-      from_chat_id: fromChatId,
-      message_id: messageId
-    })
+    body: JSON.stringify({ chat_id: toChatId, from_chat_id: fromChatId, message_id: messageId })
   });
 }
 

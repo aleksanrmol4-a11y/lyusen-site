@@ -177,6 +177,8 @@
       <form id="lc-leadForm" class="lc-lead-form" novalidate>
         <h3>Получить стратегию</h3>
         <p class="lc-form-sub">Заявка прилетит лично основателю агентства.</p>
+        <!-- honeypot против ботов -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
         <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
         <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
         <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea></label>
@@ -197,11 +199,10 @@
 
 <script>
   (function(){
-    var TG_TOKEN   = '7818572051:AAEoWoizhJybzlOgGmFmlJjrJ4A4AqQ2Lx0';
-    var TG_CHAT_ID = '666070596';
+    // Заявка идёт через Cloudflare Worker — api.telegram.org заблокирован в РФ без VPN.
+    // Worker уже сам шлёт в Telegram с серверной стороны (не блокируется в РФ).
+    var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
     var TIMEOUT_MS = 12000;
-
-    function escapeMd(s){ return String(s).replace(/[_*`[\]()]/g, function(m){ return '\\'+m; }); }
 
     window.lcSubmitLeadForm = async function(formEl, btnEl, statusBox){
       if (!formEl.reportValidity()) return false;
@@ -209,17 +210,22 @@
       var name = (d.get('name')||'').toString().trim();
       var contact = (d.get('contact')||'').toString().trim();
       var message = (d.get('message')||'').toString().trim();
+      var honeypot = (d.get('website')||'').toString().trim();
       function setBox(k, html){ if(!statusBox) return; statusBox.className='lc-form-status '+k; statusBox.innerHTML=html; statusBox.style.display=html?'block':'none'; }
       if (!name||!contact||!message){ setBox('err','Заполните все поля.'); return false; }
-      var text = '🔥 *Новая заявка с сайта Люсъен*\n\n👤 *Имя:* '+escapeMd(name)+'\n📱 *Контакт:* '+escapeMd(contact)+'\n\n💬 *Запрос:*\n'+escapeMd(message);
       var fallback = 'Не получилось отправить через сайт. Напишите напрямую: <a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">Telegram</a> · <a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>. Или на <a href="mailto:compalekks@gmail.com?subject='+encodeURIComponent('Заявка с сайта')+'&body='+encodeURIComponent('Имя: '+name+'\nКонтакт: '+contact+'\n\n'+message)+'">compalekks@gmail.com</a>.';
       btnEl.classList.add('is-loading'); btnEl.disabled=true; setBox('','');
       var ctrl = new AbortController(); var tid = setTimeout(function(){ctrl.abort();}, TIMEOUT_MS);
       try {
-        var res = await fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id:TG_CHAT_ID, text:text, parse_mode:'Markdown', disable_web_page_preview:true}), signal: ctrl.signal });
+        var res = await fetch(LEAD_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name: name, contact: contact, message: message, website: honeypot, source: formEl.id || 'tilda-main' }),
+          signal: ctrl.signal
+        });
         clearTimeout(tid);
-        var json = await res.json();
-        if (!json.ok) throw new Error(json.description||'Telegram API error');
+        var json = await res.json().catch(function(){ return {}; });
+        if (!res.ok || !json.ok) throw new Error(json.error || 'Send failed');
         setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
         btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
       } catch(err){ clearTimeout(tid); console.error(err); setBox('err', fallback); btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false; }

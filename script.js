@@ -1,7 +1,8 @@
 // ---- config ----
-const TELEGRAM_BOT_TOKEN = '7818572051:AAEoWoizhJybzlOgGmFmlJjrJ4A4AqQ2Lx0';
-const TELEGRAM_CHAT_ID   = '666070596';
-const SEND_TIMEOUT_MS    = 12000;
+// Заявки идут через Cloudflare Worker (api.telegram.org заблокирован в РФ).
+// Worker уже сам шлёт в Telegram с серверной стороны.
+const LEAD_ENDPOINT   = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
+const SEND_TIMEOUT_MS = 12000;
 
 // ---- year ----
 const yearEl = document.getElementById('year');
@@ -72,9 +73,6 @@ function setStatus(kind, html) {
   statusEl.style.display = html ? 'block' : 'none';
 }
 
-function escapeMarkdown(s) {
-  return String(s).replace(/[_*`[\]()]/g, m => '\\' + m);
-}
 
 if (form) {
   form.addEventListener('submit', (e) => {
@@ -134,7 +132,8 @@ if (fabModal) {
 }
 
 // shared submit handler (reused for main form and modal form)
-// returns true if the request reached Telegram successfully, false otherwise
+// Заявка идёт через Cloudflare Worker, не напрямую в Telegram — РФ-блокировка не мешает.
+// Returns true if Worker подтвердил доставку.
 async function submitLeadForm(formEl, btnEl, statusBox) {
   if (!formEl.reportValidity()) return false;
 
@@ -142,6 +141,8 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
   const name = (data.get('name') || '').toString().trim();
   const contact = (data.get('contact') || '').toString().trim();
   const message = (data.get('message') || '').toString().trim();
+  // Honeypot: если поле website заполнено → бот, тихо игнорируем
+  const honeypot = (data.get('website') || '').toString().trim();
 
   const setBox = (kind, html) => {
     if (!statusBox) return;
@@ -154,12 +155,6 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     setBox('err', 'Заполните все поля.');
     return false;
   }
-
-  const text =
-    '🔥 *Новая заявка с сайта Люсъен*\n\n' +
-    '👤 *Имя:* ' + escapeMarkdown(name) + '\n' +
-    '📱 *Контакт:* ' + escapeMarkdown(contact) + '\n\n' +
-    '💬 *Запрос:*\n' + escapeMarkdown(message);
 
   const fallbackHtml =
     'Не получилось отправить через сайт. Напишите напрямую: ' +
@@ -178,20 +173,21 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
   const timeoutId = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
 
   try {
-    const res = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+    const res = await fetch(LEAD_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: text,
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true
+        name: name,
+        contact: contact,
+        message: message,
+        website: honeypot,
+        source: formEl.id || 'web'
       }),
       signal: controller.signal
     });
     clearTimeout(timeoutId);
-    const json = await res.json();
-    if (!json.ok) throw new Error(json.description || 'Telegram API error');
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.ok) throw new Error(json.error || 'Send failed');
     setBox('ok', '✅ Заявка отправлена. Свяжемся в течение дня.');
     formEl.reset();
     btnEl.classList.remove('is-loading');

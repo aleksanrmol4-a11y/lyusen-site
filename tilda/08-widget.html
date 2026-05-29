@@ -238,6 +238,8 @@
     <h3>Связаться с нами</h3>
     <p class="lc-form-sub">Оставьте контакт — ответим за день.</p>
     <form id="lc-fabForm" novalidate>
+      <!-- honeypot против ботов -->
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
       <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
       <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__"></label>
       <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="3" required placeholder="Коротко по задаче"></textarea></label>
@@ -281,15 +283,20 @@
       if (typeof window.lcSubmitLeadForm === 'function') {
         ok = await window.lcSubmitLeadForm(fabForm, btn, status);
       } else {
-        // Inline fallback если 07-contact не подключён
-        var TG_TOKEN='7818572051:AAEoWoizhJybzlOgGmFmlJjrJ4A4AqQ2Lx0', TG_CHAT_ID='666070596';
+        // Inline-вариант: заявка идёт через Cloudflare Worker (api.telegram.org в РФ заблокирован)
+        var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
         function setBox(k,h){ status.className='lc-form-status '+k; status.innerHTML=h; status.style.display=h?'block':'none'; }
-        var d=new FormData(fabForm), name=d.get('name').trim(), contact=d.get('contact').trim(), message=d.get('message').trim();
+        var d=new FormData(fabForm), name=d.get('name').trim(), contact=d.get('contact').trim(), message=d.get('message').trim(), honeypot=(d.get('website')||'').toString().trim();
         if(!name||!contact||!message){ setBox('err','Заполните все поля.'); return; }
-        var text='🔥 Новая заявка с сайта\n\n👤 '+name+'\n📱 '+contact+'\n\n💬 '+message;
         btn.classList.add('is-loading'); btn.disabled=true;
         var ctrl=new AbortController(); var tid=setTimeout(function(){ctrl.abort();},12000);
-        try { var r=await fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TG_CHAT_ID,text:text}),signal:ctrl.signal}); clearTimeout(tid); var j=await r.json(); if(!j.ok) throw new Error(); setBox('ok','✅ Заявка отправлена.'); fabForm.reset(); ok=true; } catch(err){ clearTimeout(tid); setBox('err','Не получилось. Напишите в <a href="https://t.me/AlexLeonidovich1">Telegram</a> или <a href="https://wa.me/79068161172">WhatsApp</a>.'); }
+        try {
+          var r=await fetch(LEAD_ENDPOINT,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:name, contact:contact, message:message, website:honeypot, source:'tilda-fab' }), signal: ctrl.signal });
+          clearTimeout(tid);
+          var j=await r.json().catch(function(){return {};});
+          if(!r.ok || !j.ok) throw new Error(j.error||'Send failed');
+          setBox('ok','✅ Заявка отправлена.'); fabForm.reset(); ok=true;
+        } catch(err){ clearTimeout(tid); setBox('err','Не получилось. Напишите в <a href="https://t.me/AlexLeonidovich1">Telegram</a> или <a href="https://wa.me/79068161172">WhatsApp</a>.'); }
         btn.classList.remove('is-loading'); btn.disabled=false;
       }
       if (ok) setTimeout(function(){ setModalOpen(false); }, 1800);
