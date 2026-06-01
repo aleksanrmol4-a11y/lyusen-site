@@ -1,15 +1,19 @@
 /**
- * Cloudflare Worker для сайта Люсъен — VK-only режим.
+ * Cloudflare Worker для сайта Люсъен.
  *
  * РОУТИНГ:
- *   POST /lead       — приём заявки с формы. Шлёт в VK (messages.send) и возвращает {ok}.
- *   GET  /lead?p=... — резервный канал через img-hack. Распаковывает base64 payload и шлёт в VK.
+ *   POST /lead       — приём заявки с формы. Шлёт в VK (messages.send) + Telegram админу.
+ *   GET  /lead?p=... — резервный канал через img-hack. Распаковывает base64 payload и шлёт в VK + TG.
+ *   POST /           — webhook от Telegram. Пересылает админу всё что пишут боту + дублирует в VK.
  *   OPTIONS /lead    — CORS preflight (открыт для всех).
  *   GET  /           — healthcheck.
  *
  * Env vars:
- *   - VK_GROUP_TOKEN: токен сообщества VK (vk1.a....)
- *   - VK_PEER_ID:     peer_id куда слать (user_id админа, которому сообщество может писать)
+ *   - VK_GROUP_TOKEN: токен сообщества VK
+ *   - VK_PEER_ID:     peer_id куда слать в VK
+ *   - BOT_TOKEN:      токен Telegram-бота
+ *   - ADMIN_CHAT_ID:  chat_id админа в Telegram
+ *   - SECRET_TOKEN:   секрет для верификации webhook
  */
 
 function corsHeaders(origin) {
@@ -50,9 +54,142 @@ export default {
       return handleLead(request, env, origin);
     }
 
+    // POST / — webhook от Telegram
+    if (request.method === 'POST' && (path === '/' || path === '')) {
+      return handleTelegramWebhook(request, env);
+    }
+
     return new Response('Method Not Allowed', { status: 405, headers: corsHeaders(origin) });
   }
 };
+
+// ═══════════════════════════════════════════════════════════
+// Telegram webhook — пересылка сообщений боту админу
+// ═══════════════════════════════════════════════════════════
+async function handleTelegramWebhook(request, env) {
+  // Верификация что POST реально от Telegram
+  if (env.SECRET_TOKEN) {
+    const sec = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+    if (sec !== env.SECRET_TOKEN) return new Response('Forbidden', { status: 403 });
+  }
+
+  let update;
+  try { update = await request.json(); } catch { return new Response('Bad request', { status: 400 }); }
+
+  const msg = update.message;
+  if (!msg) return new Response('OK');
+
+  const from = msg.from || {};
+  const chatId = msg.chat.id;
+  const isFromAdmin = String(chatId) === String(env.ADMIN_CHAT_ID);
+
+  // /start с возможным payload (deep link)
+  if (msg.text && msg.text.indexOf('/start') === 0) {
+    const arg = msg.text.replace(/^\/start\s*/, '').trim();
+    if (arg) {
+      // Deep link с заявкой
+      try {
+        const b64 = arg.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = b64 + '='.repeat((4 - b64.length % 4) % 4);
+        const data = JSON.parse(decodeURIComponent(escape(atob(padded))));
+        const name = (data.n || '').toString().trim().slice(0, 200);
+        const contact = (data.c || '').toString().trim().slice(0, 200);
+        const message = (data.m || '').toString().trim().slice(0, 4000);
+        if (name && contact && message) {
+          await tgSendMessage(env, chatId,
+            '✅ Спасибо! Заявка получена. Александр свяжется с вами в течение дня.\n\n' +
+            'Если хотите добавить что-то — просто напишите следующим сообщением.'
+          );
+          const adminText =
+            '🔥 *Заявка через Telegram deep link*\n\n' +
+            '👤 *Имя:* ' + escapeMd(name) + '\n' +
+            '📱 *Контакт:* ' + escapeMd(contact) + '\n\n' +
+            '💬 *Запрос:*\n' + escapeMd(message) + '\n\n' +
+            '🆔 TG: `' + (from.id || '?') + '`';
+          await tgSendMessage(env, env.ADMIN_CHAT_ID, adminText,
+            from.id ? { inline_keyboard: [[{ text: '💬 Ответить', url: 'tg://user?id=' + from.id }]] } : undefined);
+          await vkSend(env, '🔥 Заявка через TG deep link\n\n👤 ' + name + '\n📱 ' + contact + '\n\n💬 ' + message);
+          return new Response('OK');
+        }
+      } catch (_) {}
+    }
+    // Обычный /start
+    await tgSendMessage(env, chatId,
+      '👋 Здравствуйте! Это бот агентства *Люсъен*.\n\n' +
+      'Напишите ваш вопрос — Александр Молчанов, основатель агентства, ответит лично в течение дня.\n\n' +
+      'Опишите задачу: какой у вас бизнес, какая задача (продвижение / реклама / сайт / контент), какой бюджет.\n\n' +
+      '🌐 [Сайт агентства](https://lyusen18.ru/)'
+    );
+    return new Response('OK');
+  }
+
+  // Сообщение от админа боту — не пересылаем, просто отвечаем подсказкой
+  if (isFromAdmin) {
+    await tgSendMessage(env, chatId,
+      'ℹ️ Это бот для приёма обращений с сайта. Когда вам кто-то напишет — пересылка прилетит сюда. Чтобы ответить — откройте профиль клиента по ссылке `tg://user?id=...` в каждой пересылке.'
+    );
+    return new Response('OK');
+  }
+
+  // Пересылка обычного сообщения админу
+  const senderName = [from.first_name, from.last_name].filter(Boolean).join(' ') || 'без имени';
+  const senderUsername = from.username ? '@' + from.username : '_username не указан_';
+  const senderId = from.id;
+  const text = msg.text || '_[фото/видео/файл — см. оригинал ниже]_';
+
+  const forwardText =
+    '💬 *Новое сообщение боту*\n\n' +
+    '👤 *От:* ' + escapeMd(senderName) + '\n' +
+    '🔗 *Username:* ' + senderUsername + '\n' +
+    '🆔 *ID:* `' + senderId + '`\n\n' +
+    '📝 *Сообщение:*\n' + escapeMd(text);
+
+  await tgSendMessage(env, env.ADMIN_CHAT_ID, forwardText,
+    { inline_keyboard: [[{ text: '💬 Ответить в Telegram', url: 'tg://user?id=' + senderId }]] }
+  );
+
+  // Дублирование в VK
+  await vkSend(env, '💬 Новое сообщение боту\n\n👤 ' + senderName + ' ' + senderUsername + '\n🆔 ' + senderId + '\n\n📝 ' + text);
+
+  // Если медиа — пересылаем оригинал
+  if (!msg.text) {
+    await tgForwardMessage(env, env.ADMIN_CHAT_ID, chatId, msg.message_id);
+  }
+
+  // Подтверждение отправителю
+  await tgSendMessage(env, chatId,
+    '✅ Спасибо, ваше сообщение принято. Александр свяжется с вами в течение дня.'
+  );
+
+  return new Response('OK');
+}
+
+async function tgSendMessage(env, chatId, text, replyMarkup) {
+  const body = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true
+  };
+  if (replyMarkup) body.reply_markup = replyMarkup;
+  return fetch('https://api.telegram.org/bot' + env.BOT_TOKEN + '/sendMessage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+}
+
+async function tgForwardMessage(env, toChatId, fromChatId, messageId) {
+  return fetch('https://api.telegram.org/bot' + env.BOT_TOKEN + '/forwardMessage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: toChatId, from_chat_id: fromChatId, message_id: messageId })
+  });
+}
+
+function escapeMd(s) {
+  return String(s).replace(/[_*`\[\]()]/g, m => '\\' + m);
+}
 
 // ═══════════════════════════════════════════════════════════
 // POST /lead — основной путь
@@ -88,9 +225,13 @@ async function handleLead(request, env, origin) {
     '💬 Запрос:\n' + message;
 
   try {
-    const ok = await vkSend(env, text);
-    if (!ok) return json(502, { ok: false, error: 'vk_failed' });
-    return json(200, { ok: true });
+    // Шлём параллельно в VK и Telegram
+    const [vkOk, tgOk] = await Promise.all([
+      vkSend(env, text),
+      tgSendMessage(env, env.ADMIN_CHAT_ID, '🔥 *Заявка с сайта Люсъен*\n_Источник: ' + escapeMd(source) + '_\n\n👤 *Имя:* ' + escapeMd(name) + '\n📱 *Контакт:* ' + escapeMd(contact) + '\n\n💬 *Запрос:*\n' + escapeMd(message)).then(r => r.ok).catch(() => false)
+    ]);
+    if (!vkOk && !tgOk) return json(502, { ok: false, error: 'all_channels_failed' });
+    return json(200, { ok: true, vk: vkOk, tg: tgOk });
   } catch (err) {
     console.error('Worker error:', err);
     return json(500, { ok: false, error: 'server_error' });
@@ -138,7 +279,10 @@ async function handleLeadGet(request, env, origin) {
       '💬 Запрос:\n' + message;
 
     // Не ждём результата отправки — сразу возвращаем gif, чтобы img загрузился без задержки
-    vkSend(env, text).catch((e) => console.error('GET /lead VK error:', e));
+    Promise.all([
+      vkSend(env, text),
+      tgSendMessage(env, env.ADMIN_CHAT_ID, '🔥 *Заявка через GET fallback (img-hack)*\n\n👤 *Имя:* ' + escapeMd(name) + '\n📱 *Контакт:* ' + escapeMd(contact) + '\n\n💬 *Запрос:*\n' + escapeMd(message))
+    ]).catch((e) => console.error('GET /lead send error:', e));
   } catch (e) {
     console.error('GET /lead parse error:', e);
   }
