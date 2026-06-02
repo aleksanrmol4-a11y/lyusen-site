@@ -209,24 +209,26 @@ p  { margin: 0; }
 }
 .hero-inner { position: relative; z-index: 2; max-width: 880px; padding: 24px 0 0; }
 
-/* Three.js hero canvas — оранжевая "планета" с шейдером справа */
-.hero-3d {
+.hero-decor-logo {
   position: absolute;
-  right: -2%;
+  right: 4%;
   top: 50%;
-  transform: translateY(-50%);
-  width: clamp(420px, 42vw, 640px);
-  aspect-ratio: 1 / 1;
-  height: auto;
+  width: clamp(220px, 28vw, 380px);
   z-index: 1;
   pointer-events: none;
-  display: block;
+  filter: drop-shadow(0 24px 48px rgba(255,107,28,.35));
+  animation: hero-logo-float 6s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes hero-logo-float {
+  0%, 100% { transform: translateY(-50%) rotate(-4deg); }
+  50%      { transform: translateY(calc(-50% - 14px)) rotate(4deg); }
 }
 @media (max-width: 1080px) {
-  .hero-3d { right: -8%; opacity: .55; width: 460px; }
+  .hero-decor-logo { opacity: .35; right: -40px; width: 320px; }
 }
 @media (max-width: 720px) {
-  .hero-3d { display: none; }
+  .hero-decor-logo { display: none; }
 }
 .hero h1 { margin-bottom: 28px; }
 .hero-sub {
