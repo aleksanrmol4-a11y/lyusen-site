@@ -71,21 +71,15 @@
   .lc-hero .lc-btn-primary:hover svg { transform: translateX(3px); }
   .lc-hero .lc-btn-primary * { color: #ffffff !important; }
 
-  .lc-hero-decor {
-    position: absolute; right: 4%; top: 50%;
-    width: clamp(220px, 28vw, 380px);
-    z-index: 1; pointer-events: none;
-    filter: drop-shadow(0 24px 48px rgba(255,107,28,.35));
-    animation: lc-float 6s ease-in-out infinite;
-    transform-origin: center;
+  .lc-hero-3d {
+    position: absolute; right: -2%; top: 50%;
+    transform: translateY(-50%);
+    width: clamp(420px, 42vw, 640px); aspect-ratio: 1/1; height: auto;
+    z-index: 1; pointer-events: none; display: block;
   }
-  @keyframes lc-float {
-    0%,100% { transform: translateY(-50%) rotate(-4deg); }
-    50% { transform: translateY(calc(-50% - 14px)) rotate(4deg); }
-  }
-  @media (max-width: 1080px) { .lc-hero-decor { opacity: .35; right: -40px; width: 320px; } }
+  @media (max-width: 1080px) { .lc-hero-3d { right: -8%; opacity: .55; width: 460px; } }
   @media (max-width: 720px) {
-    .lc-hero-decor { display: none; }
+    .lc-hero-3d { display: none; }
     .lc-hero { padding: 48px 0 110px; }
     .lc-hero-fade { height: 110px; }
   }
@@ -131,9 +125,14 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
     </a>
   </div>
-  <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="" class="lc-hero-decor" aria-hidden="true">
+  <canvas id="lc-three-hero" class="lc-hero-3d" aria-hidden="true"></canvas>
   <div class="lc-hero-fade" aria-hidden="true"></div>
 </section>
+
+<!-- Three.js: оранжевая «планета» с шейдером. Скрипт сам пропустит mobile и reduced-motion. -->
+<script type="module">
+  import('https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/three-hero.js');
+</script>
 
 <div class="lc-marquee-band" aria-hidden="true">
   <div class="lc-marquee">

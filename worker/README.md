@@ -122,4 +122,4 @@ curl https://api.telegram.org/bot7818572051:AAEoWoizhJybzlOgGmFmlJjrJ4A4AqQ2Lx0/
 
 1. **Двусторонняя переписка через бота.** Сейчас ты отвечаешь напрямую в личку клиента (`tg://user?id=...`). Можно сделать чтобы ты отвечал боту своим сообщением, а Worker пересылал в чат последнего написавшего. Нужен state — KV-хранилище у Cloudflare есть бесплатно.
 2. **Прокси для формы сайта.** Сейчас `script.js` стучит напрямую в `api.telegram.org` (что не работает в РФ без VPN). Можно сделать endpoint `/lead` в этом же Worker'е → форма стучит туда → Worker уже шлёт в Telegram. Решает проблему блокировки.
-3. **Уведомления в email** — параллельно с Telegram дублировать на `compalekks@gmail.com` через Resend или SendGrid.
+3. **Уведомления в email** — параллельно с Telegram дублировать на `info@lyusen18.ru` через Resend или SendGrid.

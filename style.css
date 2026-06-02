@@ -209,26 +209,24 @@ p  { margin: 0; }
 }
 .hero-inner { position: relative; z-index: 2; max-width: 880px; padding: 24px 0 0; }
 
-.hero-decor-logo {
+/* Three.js hero canvas — оранжевая "планета" с шейдером справа */
+.hero-3d {
   position: absolute;
-  right: 4%;
+  right: -2%;
   top: 50%;
-  width: clamp(220px, 28vw, 380px);
+  transform: translateY(-50%);
+  width: clamp(420px, 42vw, 640px);
+  aspect-ratio: 1 / 1;
+  height: auto;
   z-index: 1;
   pointer-events: none;
-  filter: drop-shadow(0 24px 48px rgba(255,107,28,.35));
-  animation: hero-logo-float 6s ease-in-out infinite;
-  transform-origin: center;
-}
-@keyframes hero-logo-float {
-  0%, 100% { transform: translateY(-50%) rotate(-4deg); }
-  50%      { transform: translateY(calc(-50% - 14px)) rotate(4deg); }
+  display: block;
 }
 @media (max-width: 1080px) {
-  .hero-decor-logo { opacity: .35; right: -40px; width: 320px; }
+  .hero-3d { right: -8%; opacity: .55; width: 460px; }
 }
 @media (max-width: 720px) {
-  .hero-decor-logo { display: none; }
+  .hero-3d { display: none; }
 }
 .hero h1 { margin-bottom: 28px; }
 .hero-sub {

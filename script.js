@@ -194,7 +194,7 @@ function lcFallbackHtml(name, contact, message) {
     '<div class="form-fallback-actions">' +
     '<a class="form-fallback-btn fb-vk" href="' + VK_GROUP_URL + '" target="_blank" rel="noopener">ВКонтакте</a>' +
     '<a class="form-fallback-btn fb-wa" href="https://wa.me/79068161172?text=' + waText + '" target="_blank" rel="noopener">WhatsApp</a>' +
-    '<a class="form-fallback-btn fb-mail" href="mailto:compalekks@gmail.com?subject=' + encodeURIComponent('Заявка с сайта') + '&body=' + mailBody + '">Email</a>' +
+    '<a class="form-fallback-btn fb-mail" href="mailto:info@lyusen18.ru?subject=' + encodeURIComponent('Заявка с сайта') + '&body=' + mailBody + '">Email</a>' +
     '</div>' +
     '<small>В WhatsApp и Email заявка уже подготовлена — просто нажмите «Отправить».</small>'
   );
