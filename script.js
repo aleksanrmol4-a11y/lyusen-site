@@ -91,11 +91,11 @@ function prefillAndScroll(serviceName) {
   }
 }
 
-// service cards: <a href="#contact" data-service="...">
-document.querySelectorAll('.service-card[data-service]').forEach(card => {
-  card.addEventListener('click', (e) => {
+// любые ссылки с data-service (карточки услуг, hero CTA, лид-карта, гарантия)
+document.querySelectorAll('a[data-service]').forEach(el => {
+  el.addEventListener('click', (e) => {
     e.preventDefault();
-    prefillAndScroll(card.dataset.service);
+    prefillAndScroll(el.dataset.service);
   });
 });
 
@@ -105,6 +105,21 @@ document.querySelectorAll('.price-list li[data-service]').forEach(li => {
   li.addEventListener('click', trigger);
   li.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger(); }
+  });
+});
+
+// ---- topic chips (выбор темы в форме) ----
+let selectedTopic = '';
+document.querySelectorAll('#topicChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const wasActive = chip.classList.contains('is-active');
+    document.querySelectorAll('#topicChips .chip').forEach(c => c.classList.remove('is-active'));
+    if (!wasActive) {
+      chip.classList.add('is-active');
+      selectedTopic = chip.dataset.topic || '';
+    } else {
+      selectedTopic = '';
+    }
   });
 });
 
@@ -208,7 +223,7 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
   const data = new FormData(formEl);
   const name = (data.get('name') || '').toString().trim();
   const contact = (data.get('contact') || '').toString().trim();
-  const message = (data.get('message') || '').toString().trim();
+  let message = (data.get('message') || '').toString().trim();
   const honeypot = (data.get('website') || '').toString().trim();
 
   const setBox = (kind, html) => {
@@ -218,10 +233,17 @@ async function submitLeadForm(formEl, btnEl, statusBox) {
     statusBox.style.display = html ? 'block' : 'none';
   };
 
-  if (!name || !contact || !message) {
-    setBox('err', 'Заполните все поля.');
+  // Обязательны только имя и контакт. Сообщение — опционально.
+  if (!name || !contact) {
+    setBox('err', 'Укажите имя и телефон — этого достаточно.');
     return false;
   }
+
+  // Добавляем выбранную тему-чип в текст заявки
+  if (selectedTopic) {
+    message = 'Интересует: ' + selectedTopic + (message ? '\n\n' + message : '');
+  }
+  if (!message) message = 'Заявка с сайта (без комментария)';
 
   btnEl.classList.add('is-loading');
   btnEl.disabled = true;
