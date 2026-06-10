@@ -76,9 +76,25 @@
     border-color: #FF7A1A;
     background: #ffffff !important;
   }
-  .lc-field textarea { resize: vertical; min-height: 110px; }
+  .lc-field textarea { resize: vertical; min-height: 70px; }
+  .lc-field > span em { font-style: normal; color: #6B6B75; font-weight: 500; }
 
-  /* Чекбокс согласия */
+  /* Бенефиты под заголовком */
+  .lc-contact-benefits { display: grid; gap: 10px; margin: 0 0 28px; list-style: none; padding: 0; }
+  .lc-contact-benefits li { position: relative; padding-left: 30px; color: #2A2A33; font-weight: 600; }
+  .lc-contact-benefits li::before { content: "✓"; position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,122,26,.14); color: #E5630A; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+
+  /* Чипсы выбора темы */
+  .lc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lc-chip { font-family: inherit; font-size: .92rem; font-weight: 600; padding: 9px 16px; border-radius: 999px; background: #FFFAF1; border: 1px solid #E4D9C5; color: #2A2A33; cursor: pointer; transition: all .15s; }
+  .lc-chip:hover { border-color: #FF7A1A; color: #E5630A; }
+  .lc-chip.is-active { background: linear-gradient(135deg,#FF5B0E,#FFA928); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(255,107,28,.3); }
+
+  /* Мелкий текст-согласие */
+  .lc-form-fine { color: #6B6B75; font-size: .8rem; line-height: 1.5; margin: 14px 0 0; }
+  .lc-form-fine a { color: #E5630A; font-weight: 600; text-decoration: underline; }
+
+  /* Чекбокс согласия (legacy, на случай если где-то остался) */
   .lc-consent {
     display: flex; align-items: flex-start; gap: 10px;
     margin: 4px 0 16px;
@@ -163,11 +179,15 @@
   <div class="lc-contact-container">
     <div class="lc-contact-inner">
       <div class="lc-contact-info">
-        <span class="lc-eyebrow">Контакты</span>
-        <h2>Поговорим о&nbsp;вашем бизнесе</h2>
-        <p class="lc-contact-lead">Опишите задачу — в течение дня вернёмся с предложением, ценой и сроками. Без долгих брифов.</p>
+        <span class="lc-eyebrow">Бесплатный аудит</span>
+        <h2>Оставьте заявку —<br>покажем, где растёт прибыль</h2>
+        <p class="lc-contact-lead">Достаточно имени и контакта. В течение дня свяжемся, зададим пару вопросов и пришлём разбор вашего маркетинга. Без навязывания и долгих брифов.</p>
+        <ul class="lc-contact-benefits">
+          <li>Ответим в течение дня в рабочее время</li>
+          <li>Бесплатно, даже если не станете клиентом</li>
+          <li>Общаетесь напрямую с основателем</li>
+        </ul>
         <ul class="lc-contact-list">
-          <li><span class="lc-contact-label">Telegram</span><a href="https://t.me/AlexLeonidovich1" target="_blank" rel="noopener">@AlexLeonidovich1</a></li>
           <li><span class="lc-contact-label">WhatsApp</span><a href="https://wa.me/79068161172" target="_blank" rel="noopener">+7 906 816-11-72</a></li>
           <li><span class="lc-contact-label">Телефон</span><a href="tel:+79935311172">+7 993 531-11-72</a></li>
           <li><span class="lc-contact-label">Email</span><a href="mailto:info@lyusen18.ru">info@lyusen18.ru</a></li>
@@ -175,22 +195,28 @@
         </ul>
       </div>
       <form id="lc-leadForm" class="lc-lead-form" novalidate>
-        <h3>Получить стратегию</h3>
-        <p class="lc-form-sub">Заявка прилетит лично основателю агентства.</p>
+        <h3>Получить бесплатный аудит</h3>
+        <p class="lc-form-sub">Заявка прилетит лично основателю агентства — Александру.</p>
         <!-- honeypot против ботов -->
         <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
         <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
-        <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
-        <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="4" required placeholder="Коротко: что за бизнес, какая задача, какой бюджет"></textarea></label>
-        <label class="lc-consent">
-          <input type="checkbox" name="consent" required>
-          <span>Я даю согласие на обработку моих персональных данных в соответствии с <a href="/privacy" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
-        </label>
+        <label class="lc-field"><span>Телефон или мессенджер</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
+        <div class="lc-field"><span>Что интересует <em>— необязательно</em></span>
+          <div class="lc-chips" id="lc-topicChips">
+            <button type="button" class="lc-chip" data-topic="SMM и соцсети">SMM и соцсети</button>
+            <button type="button" class="lc-chip" data-topic="Реклама (Директ, таргет)">Реклама</button>
+            <button type="button" class="lc-chip" data-topic="Сайт или CRM">Сайт / CRM</button>
+            <button type="button" class="lc-chip" data-topic="Маркетинг под ключ">Маркетинг под ключ</button>
+            <button type="button" class="lc-chip" data-topic="Нужна консультация">Просто консультация</button>
+          </div>
+        </div>
+        <label class="lc-field"><span>Комментарий <em>— если хотите добавить</em></span><textarea name="message" rows="2" placeholder="Пару слов о бизнесе и задаче"></textarea></label>
         <button type="submit" class="lc-form-submit" id="lc-submitBtn">
-          <span class="lc-btn-label">Отправить заявку</span>
+          <span class="lc-btn-label">Получить аудит бесплатно</span>
           <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
           <span class="lc-btn-spinner" aria-hidden="true"></span>
         </button>
+        <p class="lc-form-fine">Нажимая кнопку, вы соглашаетесь с <a href="/privacy" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</p>
         <div class="lc-form-status" id="lc-formStatus" role="status" aria-live="polite"></div>
       </form>
     </div>
@@ -267,6 +293,17 @@
         '<small>В WhatsApp и Email заявка уже подготовлена — просто нажмите «Отправить».</small>';
     }
 
+    // Чипсы выбора темы
+    var lcSelectedTopic = '';
+    document.querySelectorAll('#lc-topicChips .lc-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        var was = chip.classList.contains('is-active');
+        document.querySelectorAll('#lc-topicChips .lc-chip').forEach(function(c){ c.classList.remove('is-active'); });
+        if (!was) { chip.classList.add('is-active'); lcSelectedTopic = chip.getAttribute('data-topic') || ''; }
+        else { lcSelectedTopic = ''; }
+      });
+    });
+
     window.lcSubmitLeadForm = async function(formEl, btnEl, statusBox){
       if (!formEl.reportValidity()) return false;
       var d = new FormData(formEl);
@@ -276,7 +313,10 @@
       var honeypot = (d.get('website')||'').toString().trim();
       var source = formEl.id || 'tilda-main';
       function setBox(k, html){ if(!statusBox) return; statusBox.className='lc-form-status '+k; statusBox.innerHTML=html; statusBox.style.display=html?'block':'none'; }
-      if (!name||!contact||!message){ setBox('err','Заполните все поля.'); return false; }
+      // Обязательны только имя+контакт. Сообщение опционально.
+      if (!name||!contact){ setBox('err','Укажите имя и телефон — этого достаточно.'); return false; }
+      if (lcSelectedTopic) { message = 'Интересует: ' + lcSelectedTopic + (message ? '\n\n' + message : ''); }
+      if (!message) message = 'Заявка с сайта (без комментария)';
       btnEl.classList.add('is-loading'); btnEl.disabled=true; setBox('','');
 
       // ШАГ 1: Прямой JSONP к api.vk.com

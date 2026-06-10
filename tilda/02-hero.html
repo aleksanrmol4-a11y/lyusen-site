@@ -120,16 +120,36 @@
     .lc-marquee { left: -20vw; right: -20vw; padding: 14px 0; }
     .lc-marquee-track { gap: 28px; }
   }
+
+  /* Конверсия: eyebrow + 2 CTA + trust-строка */
+  .lc-hero-eyebrow { display: inline-block; font-size: .82rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #E5630A !important; background: rgba(255,122,26,.12); padding: 8px 16px; border-radius: 999px; margin-bottom: 22px; }
+  .lc-hero-cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 8px 0 36px; }
+  .lc-btn-ghost { display: inline-flex; align-items: center; justify-content: center; background: #ffffff !important; color: #15151B !important; font-family: 'Manrope',sans-serif; font-weight: 700 !important; font-size: 1.05rem; padding: 19px 32px; border-radius: 999px; border: 1px solid #E4D9C5; text-decoration: none !important; transition: transform .14s, box-shadow .2s, color .15s; cursor: pointer; }
+  .lc-btn-ghost:hover { border-color: #FF7A1A; color: #E5630A !important; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(20,20,30,.08); }
+  .lc-hero-trust { display: flex; flex-wrap: wrap; gap: 14px 36px; max-width: 640px; list-style: none; margin: 0; padding: 0; }
+  .lc-hero-trust li { display: flex; flex-direction: column; gap: 2px; }
+  .lc-hero-trust strong { font-size: 1.05rem; font-weight: 800; color: #15151B; display: inline-flex; align-items: center; gap: 7px; }
+  .lc-hero-trust strong::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg,#FF5B0E,#FFA928); color: #fff; font-size: .8rem; flex-shrink: 0; }
+  .lc-hero-trust span { color: #6B6B75; font-size: .9rem; }
 </style>
 
 <section class="lc-hero">
   <div class="lc-hero-inner">
-    <h1>Маркетинг, который<br><span class="lc-grad">бьёт в цель</span></h1>
-    <p class="lc-hero-sub">Люсъен — агентство SMM и интернет-маркетинга. Создаём контент, запускаем рекламу и выстраиваем стратегии, которые приносят клиентов и продажи.</p>
-    <a class="lc-btn-primary" href="#lc-contact">
-      <span>Получить стратегию</span>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
-    </a>
+    <span class="lc-hero-eyebrow">Маркетинговое агентство в Ижевске</span>
+    <h1>Приводим клиентов из рекламы<br>и соцсетей — <span class="lc-grad">под ключ</span></h1>
+    <p class="lc-hero-sub">Берём на себя SMM, рекламу, сайты и аналитику. Считаем каждый рубль: стоимость заявки, окупаемость, продажи. Не сработало — пересобираем стратегию за свой счёт.</p>
+    <div class="lc-hero-cta-row">
+      <a class="lc-btn-primary" href="#lc-contact">
+        <span>Получить бесплатный аудит</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+      </a>
+      <a class="lc-btn-ghost" href="#lc-services">Услуги и цены</a>
+    </div>
+    <ul class="lc-hero-trust">
+      <li><strong>Работаем по KPI</strong><span>платите за результат</span></li>
+      <li><strong>Запуск за 7 дней</strong><span>от заявки до первых лидов</span></li>
+      <li><strong>Открытый прайс</strong><span>без «узнайте стоимость»</span></li>
+    </ul>
   </div>
   <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="" class="lc-hero-decor" aria-hidden="true">
   <div class="lc-hero-fade" aria-hidden="true"></div>

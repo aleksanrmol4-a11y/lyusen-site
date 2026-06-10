@@ -104,11 +104,11 @@
     padding: 9px 16px;
     border-radius: 999px;
     box-shadow: 0 6px 16px rgba(0,0,0,.14);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity .25s, transform .25s;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .25s, transform .25s, box-shadow .2s;
   }
-  .lc-service-card:hover .lc-sc-cta { opacity: 1; transform: translateY(0); }
+  .lc-service-card:hover .lc-sc-cta { box-shadow: 0 10px 22px rgba(0,0,0,.2); }
   @media (hover: none) {
     .lc-sc-cta { opacity: 1 !important; transform: none !important; }
     .lc-icon-glyph { opacity: 1 !important; transform: none !important; }

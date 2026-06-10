@@ -1,0 +1,132 @@
+<!--
+  Конверсионные блоки: лид-магнит (бесплатный аудит) + основатель + гарантия.
+  Вставлять: T123 «HTML-код». Рекомендуемое место — сразу ПОСЛЕ блока «О нас» (04-about),
+  ПЕРЕД прайсом. Лид-магнит можно поднять и выше (сразу после hero) — он ловит заявки рано.
+  Самодостаточный, цвета прямыми HEX.
+
+  ВАЖНО: фото основателя.
+  Замени src в .lc-founder-photo img на ссылку своего фото (загрузи в Тильду → скопируй URL).
+  Если фото нет — блок покажет инициалы «АМ» на оранжевом фоне.
+-->
+<style>
+  .lc-conv * { box-sizing: border-box; }
+  .lc-conv a { text-decoration: none; }
+
+  /* ЛИД-МАГНИТ */
+  .lc-lead { position: relative; padding: 72px 0; background: linear-gradient(135deg,#FF5B0E 0%,#FF8A1A 55%,#FFA928 100%); overflow: hidden; font-family: 'Manrope',-apple-system,sans-serif; }
+  .lc-lead::before { content:""; position:absolute; width:480px; height:480px; border-radius:50%; top:-180px; left:-120px; background:rgba(255,255,255,.12); filter:blur(10px); }
+  .lc-lead-wrap { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: 1.3fr .9fr; gap: 48px; align-items: center; }
+  .lc-lead-eyebrow { display:inline-block; font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:rgba(255,255,255,.2); padding:8px 16px; border-radius:999px; margin-bottom:18px; }
+  .lc-lead h2 { font-family:'Unbounded','Manrope',sans-serif; font-weight:800; color:#fff; font-size:clamp(1.8rem,3.4vw,2.8rem); line-height:1.08; margin:0 0 16px; letter-spacing:-.02em; }
+  .lc-lead-p { color:rgba(255,255,255,.95); font-size:1.1rem; line-height:1.55; margin:0 0 22px; max-width:540px; }
+  .lc-lead-list { display:grid; gap:12px; list-style:none; margin:0; padding:0; }
+  .lc-lead-list li { position:relative; padding-left:34px; color:#fff; font-weight:600; font-size:1.02rem; }
+  .lc-lead-list li::before { content:"✓"; position:absolute; left:0; top:50%; transform:translateY(-50%); width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,.25); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.8rem; }
+  .lc-lead-card { display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; background:#fff; border-radius:36px; padding:34px 30px 30px; box-shadow:0 30px 70px rgba(120,40,0,.3); color:#15151B; transition:transform .2s, box-shadow .25s; }
+  .lc-lead-card:hover { transform:translateY(-5px); box-shadow:0 40px 90px rgba(120,40,0,.4); }
+  .lc-lead-badge { font-size:.76rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#E5630A; background:rgba(255,122,26,.12); padding:6px 14px; border-radius:999px; }
+  .lc-lead-price { font-family:'Unbounded','Manrope',sans-serif; font-weight:800; margin:8px 0 2px; }
+  .lc-lead-price s { color:#6B6B75; font-size:1.3rem; font-weight:600; margin-right:8px; }
+  .lc-lead-price b { font-size:2.8rem; background:linear-gradient(135deg,#FF5B0E,#FFA928); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lc-lead-note { color:#6B6B75; font-size:.96rem; margin:0 0 6px; }
+  .lc-lead-btn { display:inline-flex; align-items:center; justify-content:center; margin-top:8px; background:linear-gradient(135deg,#FF5B0E,#FF8A1A,#FFA928); color:#fff !important; font-weight:700; font-size:1.05rem; padding:16px 30px; border-radius:999px; box-shadow:0 8px 22px rgba(255,107,28,.34); }
+  .lc-lead-card small { color:#6B6B75; font-size:.82rem; margin-top:10px; }
+
+  /* ОСНОВАТЕЛЬ */
+  .lc-founder { padding: 90px 0; background: #FFF6E8; font-family:'Manrope',sans-serif; }
+  .lc-founder-wrap { max-width:1240px; margin:0 auto; padding:0 24px; display:grid; grid-template-columns:280px 1fr; gap:56px; align-items:center; }
+  .lc-founder-photo { position:relative; width:280px; height:340px; border-radius:36px; overflow:hidden; background:linear-gradient(135deg,#FF5B0E,#FFA928); box-shadow:0 24px 56px rgba(255,107,28,.32); display:flex; align-items:center; justify-content:center; }
+  .lc-founder-photo img { width:100%; height:100%; object-fit:cover; position:relative; z-index:1; }
+  .lc-founder-photo span { position:absolute; z-index:0; font-family:'Unbounded','Manrope',sans-serif; font-weight:800; font-size:4.5rem; color:rgba(255,255,255,.9); }
+  .lc-founder-eyebrow { display:inline-block; font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#E5630A; background:rgba(255,122,26,.12); padding:7px 14px; border-radius:999px; margin-bottom:14px; }
+  .lc-founder h2 { font-family:'Unbounded','Manrope',sans-serif; font-weight:800; font-size:clamp(1.8rem,3.4vw,2.6rem); margin:0 0 4px; color:#15151B; letter-spacing:-.02em; }
+  .lc-founder-role { color:#E5630A; font-weight:700; font-size:1.05rem; margin:0 0 18px; }
+  .lc-founder-quote { color:#2A2A33; font-size:1.12rem; line-height:1.6; max-width:620px; margin:0 0 24px; font-style:italic; }
+  .lc-founder-contacts { display:flex; flex-wrap:wrap; gap:12px; }
+  .lc-founder-contacts a { font-weight:700; color:#15151B; padding:11px 20px; border-radius:999px; background:#fff; border:1px solid #F1E7D6; transition:transform .15s, box-shadow .2s, color .15s; }
+  .lc-founder-contacts a:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(20,20,30,.08); color:#E5630A; }
+
+  /* ГАРАНТИЯ */
+  .lc-guarantee { padding:0 0 90px; background:#FFF6E8; font-family:'Manrope',sans-serif; }
+  .lc-guarantee-wrap { max-width:1240px; margin:0 auto; padding:0 24px; }
+  .lc-guarantee-card { display:flex; align-items:center; gap:28px; background:#15151B; color:#fff; border-radius:36px; padding:40px 44px; position:relative; overflow:hidden; }
+  .lc-guarantee-card::after { content:""; position:absolute; top:-60px; right:-40px; width:260px; height:260px; border-radius:50%; background:linear-gradient(135deg,#FF5B0E,#FFA928); opacity:.18; }
+  .lc-guarantee-icon { flex-shrink:0; width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,#FF5B0E,#FFA928); color:#fff; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
+  .lc-guarantee-icon svg { width:34px; height:34px; }
+  .lc-guarantee-text { flex:1; position:relative; z-index:1; }
+  .lc-guarantee-text h2 { font-family:'Unbounded','Manrope',sans-serif; font-weight:800; color:#fff; font-size:clamp(1.4rem,2.6vw,2rem); margin:0 0 10px; letter-spacing:-.01em; }
+  .lc-guarantee-text p { color:rgba(255,255,255,.85); line-height:1.55; max-width:680px; margin:0; }
+  .lc-guarantee-btn { position:relative; z-index:1; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#FF5B0E,#FF8A1A,#FFA928); color:#fff !important; font-weight:700; font-size:1.05rem; padding:16px 30px; border-radius:999px; box-shadow:0 8px 22px rgba(255,107,28,.34); }
+
+  @media (max-width:900px) {
+    .lc-lead-wrap { grid-template-columns:1fr; gap:32px; }
+    .lc-founder-wrap { grid-template-columns:1fr; gap:32px; text-align:center; }
+    .lc-founder-photo { margin:0 auto; }
+    .lc-founder-quote { margin-left:auto; margin-right:auto; }
+    .lc-founder-contacts { justify-content:center; }
+    .lc-guarantee-card { flex-direction:column; text-align:center; gap:20px; padding:32px 26px; }
+  }
+</style>
+
+<div class="lc-conv">
+  <!-- Лид-магнит -->
+  <section class="lc-lead">
+    <div class="lc-lead-wrap">
+      <div>
+        <span class="lc-lead-eyebrow">Бесплатно и без обязательств</span>
+        <h2>Разберём ваш маркетинг<br>и покажем точки роста</h2>
+        <p class="lc-lead-p">За 30 минут на созвоне покажем, где вы теряете заявки и бюджет, и что можно улучшить прямо сейчас — даже если не станете нашим клиентом.</p>
+        <ul class="lc-lead-list">
+          <li>Аудит текущей рекламы и соцсетей</li>
+          <li>Анализ 2–3 конкурентов в вашей нише</li>
+          <li>План: с чего начать и какой результат ждать</li>
+          <li>Прогноз стоимости заявки для вашего бизнеса</li>
+        </ul>
+      </div>
+      <a class="lc-lead-card" href="#lc-contact">
+        <span class="lc-lead-badge">Подарок новым клиентам</span>
+        <div class="lc-lead-price"><s>5 000 ₽</s> <b>0 ₽</b></div>
+        <p class="lc-lead-note">Полный разбор маркетинга вашего бизнеса</p>
+        <span class="lc-lead-btn">Забрать аудит →</span>
+        <small>Заполните форму — свяжемся в течение дня</small>
+      </a>
+    </div>
+  </section>
+
+  <!-- Основатель -->
+  <section class="lc-founder">
+    <div class="lc-founder-wrap">
+      <div class="lc-founder-photo">
+        <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/founder.jpg" alt="Александр Молчанов, основатель агентства Люсъен" onerror="this.style.display='none'">
+        <span>АМ</span>
+      </div>
+      <div>
+        <span class="lc-founder-eyebrow">Кто ведёт ваш проект</span>
+        <h2>Александр Молчанов</h2>
+        <p class="lc-founder-role">Основатель агентства Люсъен</p>
+        <p class="lc-founder-quote">«Я лично разбираю каждую заявку и собираю команду под вашу задачу. Вы общаетесь напрямую со мной и исполнителями — без менеджеров-посредников и испорченного телефона. Отвечаю за результат своим именем.»</p>
+        <div class="lc-founder-contacts">
+          <a href="https://wa.me/79068161172" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://vk.com/lusen_agency" target="_blank" rel="noopener">ВКонтакте</a>
+          <a href="tel:+79935311172">+7 993 531-11-72</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Гарантия -->
+  <section class="lc-guarantee">
+    <div class="lc-guarantee-wrap">
+      <div class="lc-guarantee-card">
+        <div class="lc-guarantee-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div class="lc-guarantee-text">
+          <h2>Работаем по KPI — платите за результат</h2>
+          <p>Перед стартом фиксируем цель в цифрах: стоимость заявки, количество лидов, окупаемость. Если за месяц не выходим на согласованные показатели — пересобираем стратегию за свой счёт, а не выставляем счёт за «попытку».</p>
+        </div>
+        <a class="lc-guarantee-btn" href="#lc-contact">Обсудить задачу</a>
+      </div>
+    </div>
+  </section>
+</div>
