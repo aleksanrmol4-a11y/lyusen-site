@@ -51,6 +51,34 @@ function lcVkSendDirect(name, contact, message, source) {
   });
 }
 
+// ---- типограф: приклеивает предлоги/частицы/тире к соседним словам ----
+// Чтобы строки не оканчивались на «из», «не», «за», «—» и т.п. (висячие предлоги).
+(function lcTypography() {
+  const NBSP = ' ';
+  // 3-буквенные предлоги/союзы/частицы/местоимения, которые нельзя оставлять в конце строки
+  const LONG = 'без|для|над|под|при|про|как|что|чем|или|уже|это|нас|вам|нам';
+  const reShort = new RegExp('(^|[ («„"])([А-Яа-яЁё]{1,2}|' + LONG + ') +', 'g');
+  function typo(s) {
+    if (!s) return s;
+    s = s.replace(/ ([—–]) /g, NBSP + '$1 ');
+    s = s.replace(reShort, function (m, pre, w) { return pre + w + NBSP; });
+    return s;
+  }
+  const SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, CODE: 1, PRE: 1, NOSCRIPT: 1 };
+  function walk(node) {
+    for (let n = node.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3) {
+        const t = typo(n.nodeValue);
+        if (t !== n.nodeValue) n.nodeValue = t;
+      } else if (n.nodeType === 1 && !SKIP[n.tagName]) {
+        walk(n);
+      }
+    }
+  }
+  const root = document.querySelector('main') || document.body;
+  if (root) walk(root);
+})();
+
 // ---- year ----
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();

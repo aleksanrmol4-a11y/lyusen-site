@@ -299,3 +299,28 @@
     });
   })();
 </script>
+
+<!-- Типограф: приклеивает предлоги/частицы/тире к словам, чтобы строки не оканчивались на «из»/«не»/«—». -->
+<script>
+  (function lcTypography(){
+    var NBSP = String.fromCharCode(160);
+    var LONG = 'без|для|над|под|при|про|как|что|чем|или|уже|это|нас|вам|нам';
+    var reShort = new RegExp('(^|[ («„"])([А-Яа-яЁё]{1,2}|' + LONG + ') +', 'g');
+    function typo(s){
+      if (!s || s.indexOf(' ') === -1) return s;
+      s = s.replace(/ ([—–]) /g, NBSP + '$1 ');
+      s = s.replace(reShort, function(m, pre, w){ return pre + w + NBSP; });
+      return s;
+    }
+    var SKIP = { SCRIPT:1, STYLE:1, TEXTAREA:1, INPUT:1, CODE:1, PRE:1, NOSCRIPT:1, SVG:1 };
+    function walk(node){
+      for (var n = node.firstChild; n; n = n.nextSibling){
+        if (n.nodeType === 3){ var t = typo(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; }
+        else if (n.nodeType === 1 && !SKIP[n.tagName]) walk(n);
+      }
+    }
+    function run(){ walk(document.body); }
+    if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(run, 300);
+    else window.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 300); });
+  })();
+</script>
