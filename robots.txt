@@ -2,14 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /privacy
 
-User-agent: Yandex
-Allow: /
-Disallow: /privacy
-Crawl-delay: 1
-
-User-agent: Googlebot
-Allow: /
-Disallow: /privacy
-
 Sitemap: https://lyusen18.ru/sitemap.xml
-Host: https://lyusen18.ru

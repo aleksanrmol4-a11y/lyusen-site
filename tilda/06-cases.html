@@ -16,7 +16,7 @@
   .lc-cases-head .lc-eyebrow {
     display: inline-block; font-size: .82rem; font-weight: 700;
     letter-spacing: .12em; text-transform: uppercase;
-    color: #FF7A1A !important;
+    color: #B84D00 !important;
     padding: 7px 14px; border-radius: 999px;
     background: rgba(255,122,26,.10);
     margin: 0 0 20px;
@@ -66,7 +66,7 @@
     position: absolute; top: 22px; left: 22px;
     font-size: .72rem; font-weight: 700;
     letter-spacing: .06em; text-transform: uppercase;
-    color: #FF7A1A !important;
+    color: #B84D00 !important;
     background: rgba(255,122,26,.12);
     padding: 6px 12px; border-radius: 999px;
     z-index: 2;
@@ -104,7 +104,7 @@
     padding: 5px 11px;
     font-size: .78rem; font-weight: 700;
     letter-spacing: .02em;
-    color: #E5630A !important;
+    color: #B84D00 !important;
     background: rgba(255,122,26,.10);
     border-radius: 999px;
     border: 1px solid rgba(255,122,26,.20);
@@ -117,6 +117,24 @@
   }
 
   .lc-cases-note { text-align: center; margin-top: 36px; color: #6B6B75 !important; }
+
+  /* Тач-устройства и reduced-motion: автопрокрутки нет, карусель листается пальцем */
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .lc-case-carousel {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      scroll-padding-left: 24px;
+      padding-left: 24px; padding-right: 24px;
+      scrollbar-width: none;
+      -webkit-mask-image: none;
+              mask-image: none;
+    }
+    .lc-case-carousel::-webkit-scrollbar { display: none; }
+    .lc-case-track { animation: none; }
+    .lc-case-track > .lc-case-card[aria-hidden="true"] { display: none; }
+    .lc-case-carousel .lc-case-card { scroll-snap-align: start; }
+  }
 
   @media (max-width: 1024px) { .lc-cases { padding: 72px 0; } }
   @media (max-width: 720px) {
