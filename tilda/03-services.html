@@ -94,8 +94,8 @@
   .lc-service-card p { color: rgba(255,255,255,.96) !important; font-size: 1rem; flex: 1; line-height: 1.5; margin: 0; }
 
   .lc-sc-cta {
-    position: absolute;
-    right: 24px; bottom: 24px;
+    align-self: flex-start;
+    margin-top: 20px;
     display: inline-flex; align-items: center;
     font-weight: 700;
     font-size: .92rem;
@@ -104,11 +104,9 @@
     padding: 9px 16px;
     border-radius: 999px;
     box-shadow: 0 6px 16px rgba(0,0,0,.14);
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity .25s, transform .25s, box-shadow .2s;
+    transition: transform .15s, box-shadow .2s;
   }
-  .lc-service-card:hover .lc-sc-cta { box-shadow: 0 10px 22px rgba(0,0,0,.2); }
+  .lc-service-card:hover .lc-sc-cta { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.2); }
   @media (hover: none) {
     .lc-sc-cta { opacity: 1 !important; transform: none !important; }
     .lc-icon-glyph { opacity: 1 !important; transform: none !important; }
@@ -140,7 +138,7 @@
 
   @media (max-width: 1024px) { .lc-service-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } .lc-services { padding: 80px 0 48px; } }
   @media (max-width: 860px) { .lc-service-grid { grid-template-columns: 1fr; } .lc-services-head { flex-direction: column; align-items: flex-start; gap: 14px; } .lc-services-head .lc-all-link { align-self: flex-start; } }
-  @media (max-width: 720px) { .lc-services { padding: 64px 0 36px; } .lc-service-card { padding: 26px 22px 70px; min-height: 230px; } .lc-sc-cta { right: 22px; bottom: 22px; padding: 8px 14px; font-size: .88rem; } .lc-sc-icon { width: 54px; height: 54px; } }
+  @media (max-width: 720px) { .lc-services { padding: 64px 0 36px; } .lc-service-card { padding: 26px 22px 28px; min-height: 230px; } .lc-sc-cta { margin-top: 16px; padding: 8px 14px; font-size: .88rem; } .lc-sc-icon { width: 54px; height: 54px; } }
 </style>
 
 <section id="lc-services" class="lc-services">
