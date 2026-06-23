@@ -1,0 +1,308 @@
+<!--
+  Кейсы: карусель из 5 карточек с лого-аватарками. На hover — теги услуг.
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
+-->
+<style>
+  .lc-cases {
+    padding: 96px 0;
+    background: #FFEFD9 !important;
+    overflow: hidden;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-cases *, .lc-cases *::before, .lc-cases *::after { box-sizing: border-box; }
+  .lc-cases-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-cases-head { max-width: 760px; margin: 0 auto 56px; text-align: center; }
+  .lc-cases-head .lc-eyebrow {
+    display: inline-block; font-size: .82rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #B84D00 !important;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,122,26,.10);
+    margin: 0 0 20px;
+  }
+  .lc-cases-head h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 0;
+  }
+
+  .lc-case-carousel {
+    position: relative; width: 100%; overflow: hidden; padding: 8px 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+  }
+  .lc-case-track {
+    display: flex; gap: 22px;
+    width: max-content;
+    animation: lc-case-scroll 90s linear infinite;
+    will-change: transform;
+  }
+  .lc-case-track:hover { animation-play-state: paused; }
+  @keyframes lc-case-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 11px)); } }
+
+  .lc-case-card {
+    position: relative;
+    width: 300px; min-height: 280px;
+    flex-shrink: 0;
+    padding: 100px 26px 28px;
+    background: #ffffff !important;
+    border-radius: 36px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    transition: transform .2s, box-shadow .25s;
+    overflow: hidden;
+  }
+  .lc-case-card::before {
+    content: ""; position: absolute; top: -30px; right: -30px;
+    width: 160px; height: 160px;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%);
+    border-radius: 50%;
+    opacity: .14;
+  }
+  .lc-case-card:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 20px 56px rgba(255,130,30,.20); }
+  .lc-case-tag {
+    position: absolute; top: 22px; left: 22px;
+    font-size: .72rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: #B84D00 !important;
+    background: rgba(255,122,26,.12);
+    padding: 6px 12px; border-radius: 999px;
+    z-index: 2;
+  }
+  .lc-case-avatar {
+    position: absolute; top: 18px; right: 18px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(20,20,30,.10), 0 0 0 1px #F1E7D6;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    z-index: 2;
+  }
+  .lc-case-avatar img { max-width: 78%; max-height: 78%; width: auto; height: auto; object-fit: contain; }
+  .lc-case-card h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: #15151B !important;
+    margin: 0 0 8px;
+    position: relative; z-index: 1;
+  }
+  .lc-case-card p { color: #6B6B75 !important; font-size: .98rem; position: relative; z-index: 1; margin: 0; transition: opacity .25s; }
+
+  .lc-case-services {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 16px;
+    position: relative; z-index: 1;
+    transition: opacity .25s, transform .25s;
+  }
+  .lc-case-services span {
+    display: inline-block;
+    padding: 5px 11px;
+    font-size: .78rem; font-weight: 700;
+    letter-spacing: .02em;
+    color: #B84D00 !important;
+    background: rgba(255,122,26,.10);
+    border-radius: 999px;
+    border: 1px solid rgba(255,122,26,.20);
+    white-space: nowrap;
+  }
+  @media (hover: hover) {
+    .lc-case-services { opacity: 0; transform: translateY(8px); }
+    .lc-case-card:hover .lc-case-services { opacity: 1; transform: translateY(0); }
+    .lc-case-card:hover p { opacity: .7; }
+  }
+
+  .lc-cases-note { text-align: center; margin-top: 36px; color: #6B6B75 !important; }
+
+  /* Тач-устройства и reduced-motion: автопрокрутки нет, карусель листается пальцем */
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .lc-case-carousel {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      scroll-padding-left: 24px;
+      padding-left: 24px; padding-right: 24px;
+      scrollbar-width: none;
+      -webkit-mask-image: none;
+              mask-image: none;
+    }
+    .lc-case-carousel::-webkit-scrollbar { display: none; }
+    .lc-case-track { animation: none; }
+    .lc-case-track > .lc-case-card[aria-hidden="true"] { display: none; }
+    .lc-case-carousel .lc-case-card { scroll-snap-align: start; }
+  }
+
+  @media (max-width: 1024px) { .lc-cases { padding: 72px 0; } }
+  @media (max-width: 720px) {
+    .lc-cases { padding: 56px 0; }
+    .lc-case-carousel .lc-case-card { width: 260px; min-height: 260px; padding: 84px 20px 22px; }
+    .lc-case-track { gap: 16px; animation-duration: 78s; }
+    @keyframes lc-case-scroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 8px)); } }
+    .lc-case-avatar { width: 52px; height: 52px; top: 14px; right: 14px; }
+    .lc-case-tag { top: 16px; left: 16px; padding: 5px 10px; font-size: .68rem; }
+    .lc-case-services { margin-top: 12px; gap: 5px; opacity: 1 !important; transform: none !important; }
+    .lc-case-services span { padding: 4px 9px; font-size: .72rem; }
+  }
+</style>
+
+<section id="lc-cases" class="lc-cases">
+  <div class="lc-cases-container">
+    <header class="lc-cases-head">
+      <span class="lc-eyebrow">Кейсы</span>
+      <h2>Кто нам доверяет</h2>
+    </header>
+  </div>
+  <div class="lc-case-carousel" aria-label="Карусель клиентов">
+    <div class="lc-case-track">
+      <!-- Набор 1 -->
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/enot-park.png" alt="Енот-Парк"></div>
+        <h3>Енот&nbsp;парк</h3>
+        <p>Маркетинг под ключ: соцсети, таргет, контент.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Таргет</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mk-rost.png" alt="TORA Meat Company"></div>
+        <h3>МК «Рост»</h3>
+        <p>Продвижение и привлечение клиентов.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Брендинг</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/izhsintez.png" alt="Ижсинтез-Химпром"></div>
+        <h3>Ижсинтез-Химпром</h3>
+        <p>Комплексное маркетинговое сопровождение.</p>
+        <div class="lc-case-services"><span>Стратегия</span><span>Аналитика</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/leo-smart.jpg" alt="Лео Смарт Авто"></div>
+        <h3>Лео&nbsp;Смарт&nbsp;Авто</h3>
+        <p>Продвижение услуг автосервиса, лидогенерация.</p>
+        <div class="lc-case-services"><span>Таргет</span><span>Контекст</span><span>Лиды</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mart-stroy.png" alt="Март Строй"></div>
+        <h3>Март&nbsp;Строй</h3>
+        <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Сайт</span><span>Таргет</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/moosh-honey.jpg" alt="Mush Honey"></div>
+        <h3>Mush&nbsp;Honey</h3>
+        <p>Продвижение пасеки: контент, упаковка, соцсети.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Брендинг</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/reputacia.jpg" alt="Репутация Дома"></div>
+        <h3>Репутация&nbsp;Дома</h3>
+        <p>Управление репутацией, работа с&nbsp;отзывами и&nbsp;контентом.</p>
+        <div class="lc-case-services"><span>Стратегия</span><span>Контент</span><span>Аналитика</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/lumen-group.jpg" alt="СК Lumen Group"></div>
+        <h3>СК&nbsp;Lumen&nbsp;Group</h3>
+        <p>Маркетинг строительной компании, сайт и&nbsp;лидогенерация.</p>
+        <div class="lc-case-services"><span>Сайт</span><span>Таргет</span><span>SMM</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/apelsin.jpg" alt="Телефон Апельсин"></div>
+        <h3>Телефон&nbsp;Апельсин</h3>
+        <p>Продвижение сервиса по&nbsp;ремонту техники в&nbsp;Ижевске.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Таргет</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/lumostars.jpg" alt="Lumostars"></div>
+        <h3>Lumostars</h3>
+        <p>Соцсети и&nbsp;таргет для&nbsp;центра развития.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Таргет</span></div>
+      </article>
+      <!-- Набор 2 -->
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/enot-park.png" alt=""></div>
+        <h3>Енот&nbsp;парк</h3>
+        <p>Маркетинг под ключ: соцсети, таргет, контент.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Таргет</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mk-rost.png" alt=""></div>
+        <h3>МК «Рост»</h3>
+        <p>Продвижение и привлечение клиентов.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Брендинг</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/izhsintez.png" alt=""></div>
+        <h3>Ижсинтез-Химпром</h3>
+        <p>Комплексное маркетинговое сопровождение.</p>
+        <div class="lc-case-services"><span>Стратегия</span><span>Аналитика</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/leo-smart.jpg" alt=""></div>
+        <h3>Лео&nbsp;Смарт&nbsp;Авто</h3>
+        <p>Продвижение услуг автосервиса, лидогенерация.</p>
+        <div class="lc-case-services"><span>Таргет</span><span>Контекст</span><span>Лиды</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/mart-stroy.png" alt=""></div>
+        <h3>Март&nbsp;Строй</h3>
+        <p>Маркетинг для строительной компании, сайт и&nbsp;таргет.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Сайт</span><span>Таргет</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/moosh-honey.jpg" alt="Mush Honey"></div>
+        <h3>Mush&nbsp;Honey</h3>
+        <p>Продвижение пасеки: контент, упаковка, соцсети.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Брендинг</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/reputacia.jpg" alt="Репутация Дома"></div>
+        <h3>Репутация&nbsp;Дома</h3>
+        <p>Управление репутацией, работа с&nbsp;отзывами и&nbsp;контентом.</p>
+        <div class="lc-case-services"><span>Стратегия</span><span>Контент</span><span>Аналитика</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/lumen-group.jpg" alt="СК Lumen Group"></div>
+        <h3>СК&nbsp;Lumen&nbsp;Group</h3>
+        <p>Маркетинг строительной компании, сайт и&nbsp;лидогенерация.</p>
+        <div class="lc-case-services"><span>Сайт</span><span>Таргет</span><span>SMM</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/apelsin.jpg" alt="Телефон Апельсин"></div>
+        <h3>Телефон&nbsp;Апельсин</h3>
+        <p>Продвижение сервиса по&nbsp;ремонту техники в&nbsp;Ижевске.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Таргет</span><span>Контент</span></div>
+      </article>
+      <article class="lc-case-card" aria-hidden="true">
+        <div class="lc-case-tag">В работе</div>
+        <div class="lc-case-avatar"><img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/clients/lumostars.jpg" alt="Lumostars"></div>
+        <h3>Lumostars</h3>
+        <p>Соцсети и&nbsp;таргет для&nbsp;центра развития.</p>
+        <div class="lc-case-services"><span>SMM</span><span>Контент</span><span>Таргет</span></div>
+      </article>
+    </div>
+  </div>
+  <div class="lc-cases-container">
+    <p class="lc-cases-note">Полные кейсы с цифрами и результатами — высылаем по запросу.</p>
+  </div>
+</section>

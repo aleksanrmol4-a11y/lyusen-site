@@ -1,0 +1,233 @@
+<!--
+  Услуги: 6 цветных карточек с иконкой-кнопкой и hover-CTA.
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
+  Клик по карточке: скролл к форме + автозаполнение поля «Что нужно сделать».
+-->
+<style>
+  .lc-services {
+    padding: 110px 0 64px;
+    position: relative; z-index: 1;
+    background: #FFF6E8 !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-services *, .lc-services *::before, .lc-services *::after { box-sizing: border-box; }
+  .lc-services-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-services-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; margin: 0 0 56px;
+  }
+  .lc-services-head h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 0 0 14px;
+  }
+  .lc-services-head p { color: #6B6B75 !important; font-size: 1.08rem; margin: 0; }
+
+  .lc-all-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 600 !important;
+    color: #2A2A33 !important;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: #ffffff !important;
+    border: 1px solid #F1E7D6;
+    text-decoration: none !important;
+    transition: transform .15s, box-shadow .2s, color .15s;
+    white-space: nowrap;
+  }
+  .lc-all-link:hover { transform: translateY(-1px); box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 8px 28px rgba(20,20,30,.06); color: #FF7A1A !important; }
+  .lc-all-link svg { transition: transform .2s; }
+  .lc-all-link:hover svg { transform: translateX(3px); }
+
+  .lc-service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .lc-service-card {
+    position: relative; padding: 32px 28px 30px;
+    border-radius: 36px;
+    min-height: 280px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .22s, box-shadow .25s;
+    isolation: isolate;
+    cursor: pointer;
+    text-decoration: none !important;
+    color: inherit;
+  }
+  .lc-service-card:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 20px 56px rgba(255,130,30,.20); }
+  .lc-sc-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .lc-sc-bg span { position: absolute; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .lc-sc-bg span:nth-child(1) { width: 200px; height: 200px; top: -50px; right: -50px; }
+  .lc-sc-bg span:nth-child(2) { width: 140px; height: 140px; bottom: -40px; left: -30px; background: rgba(0,0,0,.06); }
+
+  .lc-sc-icon {
+    position: relative;
+    width: 62px; height: 62px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.95);
+    border-radius: 50%;
+    color: #E5630A;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.18), 0 1px 0 rgba(255,255,255,.6) inset;
+    transition: transform .25s, box-shadow .25s;
+  }
+  .lc-sc-icon svg {
+    width: 28px; height: 28px;
+    position: absolute; inset: 0; margin: auto;
+    transition: opacity .25s, transform .3s;
+  }
+  .lc-sc-icon .lc-icon-arrow { opacity: 0; transform: translateX(-8px); }
+  .lc-service-card:hover .lc-sc-icon { transform: scale(1.08); box-shadow: 0 12px 28px rgba(0,0,0,.24); }
+  .lc-service-card:hover .lc-icon-glyph { opacity: 0; transform: translateX(8px); }
+  .lc-service-card:hover .lc-icon-arrow { opacity: 1; transform: translateX(0); }
+
+  .lc-service-card h3 {
+    font-family: 'Manrope', sans-serif;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    margin: 0 0 10px;
+    text-shadow: 0 1px 1px rgba(0,0,0,.08);
+  }
+  .lc-service-card p { color: rgba(255,255,255,.96) !important; font-size: 1rem; flex: 1; line-height: 1.5; margin: 0; }
+
+  .lc-sc-cta {
+    align-self: flex-start;
+    margin-top: 20px;
+    display: inline-flex; align-items: center;
+    font-weight: 700;
+    font-size: .92rem;
+    color: #15151B !important;
+    background: #ffffff !important;
+    padding: 9px 16px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.14);
+    transition: transform .15s, box-shadow .2s;
+  }
+  .lc-service-card:hover .lc-sc-cta { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.2); }
+  @media (hover: none) {
+    .lc-sc-cta { opacity: 1 !important; transform: none !important; }
+    .lc-icon-glyph { opacity: 1 !important; transform: none !important; }
+    .lc-icon-arrow { opacity: 0 !important; }
+  }
+
+  /* Цвета карточек */
+  .lc-sc-orange { background: linear-gradient(160deg, #FF8A3D 0%, #E85A0E 100%); }
+  .lc-sc-orange .lc-sc-icon { color: #E5630A; }
+  .lc-sc-coral { background: linear-gradient(160deg, #FF7B66 0%, #E84A3D 100%); }
+  .lc-sc-coral .lc-sc-icon { color: #E84A3D; }
+  .lc-sc-yellow { background: linear-gradient(160deg, #FFD000 0%, #FF9A14 100%); }
+  .lc-sc-yellow h3 { color: #1A0E00 !important; text-shadow: none; }
+  .lc-sc-yellow p { color: rgba(26,14,0,.82) !important; }
+  .lc-sc-yellow .lc-sc-icon { background: #1A0E00; color: #FFD000; box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+  .lc-sc-yellow .lc-sc-cta { color: #1A0E00 !important; }
+  .lc-sc-peach { background: linear-gradient(160deg, #FF9942 0%, #E66A14 100%); }
+  .lc-sc-peach .lc-sc-icon { color: #E66A14; }
+  .lc-sc-pink { background: linear-gradient(160deg, #F76288 0%, #D03058 100%); }
+  .lc-sc-pink .lc-sc-icon { color: #D03058; }
+  .lc-sc-dark { background: linear-gradient(160deg, #25252F 0%, #15151B 100%); }
+  .lc-sc-dark .lc-sc-icon {
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%);
+    color: #ffffff;
+    box-shadow: 0 8px 22px rgba(255,107,28,.45);
+  }
+  .lc-sc-dark .lc-sc-bg span:nth-child(1) { background: rgba(255,122,26,.20); }
+  .lc-sc-dark .lc-sc-bg span:nth-child(2) { background: rgba(255,196,46,.15); }
+
+  @media (max-width: 1024px) { .lc-service-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } .lc-services { padding: 80px 0 48px; } }
+  @media (max-width: 860px) { .lc-service-grid { grid-template-columns: 1fr; } .lc-services-head { flex-direction: column; align-items: flex-start; gap: 14px; } .lc-services-head .lc-all-link { align-self: flex-start; } }
+  @media (max-width: 720px) { .lc-services { padding: 64px 0 36px; } .lc-service-card { padding: 26px 22px 28px; min-height: 230px; } .lc-sc-cta { margin-top: 16px; padding: 8px 14px; font-size: .88rem; } .lc-sc-icon { width: 54px; height: 54px; } }
+</style>
+
+<section id="lc-services" class="lc-services">
+  <div class="lc-services-container">
+    <header class="lc-services-head">
+      <div>
+        <h2>Что мы делаем</h2>
+        <p>Полный цикл digital-продвижения — от идеи до отчёта по выручке.</p>
+      </div>
+      <a href="#lc-pricing" class="lc-all-link">Все услуги
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+      </a>
+    </header>
+    <div class="lc-service-grid">
+      <a class="lc-service-card lc-sc-orange" href="#lc-contact" data-lc-service="SMM под ключ">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 10.5v3a1.5 1.5 0 0 0 1.5 1.5h1l1.7 5.1a1 1 0 0 0 1.9-.2l.4-2.5 6.1 2a1 1 0 0 0 1.3-1V5.6a1 1 0 0 0-1.3-1L9 6.6H5a1.5 1.5 0 0 0-1.5 1.5v2.4z"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>SMM под ключ</h3>
+        <p>Контент-план, посты, сторис, модерация, таргет ВКонтакте. Полное ведение соцсетей с прицелом на лидов.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+      <a class="lc-service-card lc-sc-coral" href="#lc-contact" data-lc-service="Контекст и таргет">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 14 8.2 20.2 8.5l-5 4 1.7 6.3L12 15.5l-5 3.3L8.7 12.5l-5-4L10 8.2z"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>Контекст и таргет</h3>
+        <p>Яндекс.Директ, Google Ads, ВК-реклама, Avito и маркетплейсы. Запускаем за 7 дней, считаем CPL и ROMI.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+      <a class="lc-service-card lc-sc-yellow" href="#lc-contact" data-lc-service="Сайты и CRM">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18v12H3z M3 19h18v2H3z M9 12l-3-3 3-3v6z M15 6l3 3-3 3V6z"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>Сайты и CRM</h3>
+        <p>Лендинги и корпоративные сайты, настройка Bitrix24, чат-боты в Telegram и VK, сопровождение.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+      <a class="lc-service-card lc-sc-peach" href="#lc-contact" data-lc-service="Аналитика и стратегия">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21V11h3v10H3zm6 0V5h3v16H9zm6 0v-7h3v7h-3z"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>Аналитика и стратегия</h3>
+        <p>Анализ рынка, портрета клиента, конкурентов. Стратегия продвижения на 6-12 месяцев под ваши KPI.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+      <a class="lc-service-card lc-sc-pink" href="#lc-contact" data-lc-service="Контент и брендинг">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9zm0 4a5 5 0 1 1-5 5 5 5 0 0 1 5-5zm0 3a2 2 0 1 0 2 2 2 2 0 0 0-2-2z"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>Контент и брендинг</h3>
+        <p>Фото и видеосъёмка, фирменный стиль, брендбук, мерч. Создаём визуальный язык, который запоминается.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+      <a class="lc-service-card lc-sc-dark" href="#lc-contact" data-lc-service="Маркетинг под ключ">
+        <div class="lc-sc-bg" aria-hidden="true"><span></span><span></span></div>
+        <div class="lc-sc-icon" aria-hidden="true">
+          <svg class="lc-icon-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+          <svg class="lc-icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </div>
+        <h3>Маркетинг под ключ</h3>
+        <p>Полный аутсорсинг: стратегия, реклама, контент, аналитика. Заменяем вам in-house маркетолога и команду подрядчиков.</p>
+        <span class="lc-sc-cta">Оставить заявку →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    document.querySelectorAll('.lc-service-card[data-lc-service]').forEach(function(card){
+      card.addEventListener('click', function(e){
+        e.preventDefault();
+        var s = card.getAttribute('data-lc-service');
+        var msg = document.querySelector('textarea[name="message"]');
+        if (msg) { msg.value = 'Интересует: ' + s + '\n\n'; setTimeout(function(){ msg.focus({preventScroll:true}); msg.setSelectionRange(msg.value.length, msg.value.length); }, 350); }
+        var target = document.getElementById('lc-contact');
+        if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  })();
+</script>

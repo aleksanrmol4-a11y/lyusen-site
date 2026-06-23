@@ -1,0 +1,326 @@
+<!--
+  Виджет связи внизу справа: FAB-кнопка + меню (Форма / TG / WA / VK / Тел) + попап-форма.
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
+  Вставлять: Настройки сайта → «Дополнительный HTML-код в <body>» (виджет будет на всех страницах).
+-->
+<style>
+  .lc-fab-wrap {
+    position: fixed; right: 22px; bottom: 22px;
+    z-index: 70;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .lc-fab-wrap *, .lc-fab-wrap *::before, .lc-fab-wrap *::after { box-sizing: border-box; }
+  .lc-fab-toggle {
+    width: 60px; height: 60px;
+    border: 0; border-radius: 50%;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 28px rgba(255,107,28,.45), 0 4px 10px rgba(0,0,0,.12);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .lc-fab-toggle:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(255,107,28,.55); }
+  .lc-fab-toggle svg { width: 26px; height: 26px; position: absolute; transition: opacity .2s, transform .25s; color: #ffffff !important; }
+  .lc-fab-icon-close { opacity: 0; transform: rotate(-45deg); }
+  .lc-fab-wrap[data-open="true"] .lc-fab-icon-open { opacity: 0; transform: rotate(45deg); }
+  .lc-fab-wrap[data-open="true"] .lc-fab-icon-close { opacity: 1; transform: rotate(0); }
+  .lc-fab-toggle::before {
+    content: ""; position: absolute; inset: -4px;
+    border-radius: 50%;
+    background: rgba(255,138,30,.45);
+    z-index: -1;
+    animation: lc-pulse 2.2s ease-out infinite;
+  }
+  @keyframes lc-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.45); opacity: 0; } }
+  .lc-fab-wrap[data-open="true"] .lc-fab-toggle::before { animation: none; opacity: 0; }
+
+  .lc-fab-menu { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; animation: lc-menu-in .25s ease-out; }
+  @keyframes lc-menu-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .lc-fab-item {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 16px 10px 12px;
+    background: #ffffff !important;
+    border: 0;
+    border-radius: 999px;
+    color: #15151B !important;
+    font-family: inherit;
+    font-size: .94rem; font-weight: 700;
+    box-shadow: 0 6px 18px rgba(20,20,30,.14);
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .2s;
+  }
+  .lc-fab-item:hover { transform: translateX(-2px); box-shadow: 0 10px 22px rgba(20,20,30,.18); }
+  .lc-fab-item svg { width: 22px; height: 22px; flex-shrink: 0; padding: 6px; border-radius: 50%; box-sizing: content-box; color: #ffffff !important; }
+  .lc-fab-form svg { background: #FF7A1A; }
+  .lc-fab-tg svg { background: #229ED9; }
+  .lc-fab-wa svg { background: #25D366; }
+  .lc-fab-vk svg { background: #0077FF; }
+  .lc-fab-call svg { background: #15151B; }
+
+  /* Modal */
+  .lc-fab-modal {
+    position: fixed; inset: 0;
+    z-index: 80;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: lc-modal-in .2s ease-out;
+    font-family: 'Manrope', sans-serif;
+  }
+  @keyframes lc-modal-in { from { opacity: 0; } to { opacity: 1; } }
+  .lc-fab-modal[hidden], .lc-fab-menu[hidden] { display: none !important; }
+  .lc-fab-modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(20,20,30,.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .lc-fab-modal-card {
+    position: relative;
+    width: 100%; max-width: 440px;
+    background: #ffffff !important;
+    border-radius: 36px;
+    padding: 36px 30px 28px;
+    box-shadow: 0 30px 80px rgba(20,20,30,.35);
+    max-height: 90vh; overflow-y: auto;
+    animation: lc-card-in .25s cubic-bezier(.2,.8,.3,1);
+    color: #15151B;
+  }
+  .lc-fab-modal-card * { box-sizing: border-box; }
+  @keyframes lc-card-in { from { transform: translateY(20px) scale(.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+  .lc-fab-modal-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px;
+    border: 0; border-radius: 50%;
+    background: #FFFAF1 !important;
+    color: #2A2A33 !important;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .lc-fab-modal-close:hover { background: #E4D9C5 !important; color: #15151B !important; }
+  .lc-fab-modal-close svg { width: 18px; height: 18px; }
+  .lc-fab-modal-card h3 {
+    font-size: 1.4rem; margin: 0 0 6px;
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800;
+    color: #15151B !important;
+  }
+  .lc-fab-modal-card .lc-form-sub { color: #6B6B75 !important; margin: 0 0 24px; }
+  .lc-fab-modal-card .lc-field { display: block; margin-bottom: 14px; }
+  .lc-fab-modal-card .lc-field > span { display: block; font-size: .88rem; font-weight: 600; color: #2A2A33 !important; margin-bottom: 6px; }
+  .lc-fab-modal-card .lc-field input, .lc-fab-modal-card .lc-field textarea {
+    width: 100%; padding: 13px 16px;
+    font-family: inherit; font-size: 1rem;
+    color: #15151B !important;
+    background: #FFFAF1 !important;
+    border: 1px solid #E4D9C5;
+    border-radius: 18px;
+  }
+  .lc-fab-modal-card .lc-field input:focus, .lc-fab-modal-card .lc-field textarea:focus {
+    outline: none; border-color: #FF7A1A; background: #ffffff !important;
+  }
+  .lc-fab-modal-card .lc-field textarea { min-height: 88px; resize: vertical; }
+
+  /* Чекбокс согласия */
+  .lc-fab-modal-card .lc-consent {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 4px 0 16px;
+    font-size: .85rem;
+    color: #6B6B75 !important;
+    line-height: 1.5; cursor: pointer; user-select: none;
+  }
+  .lc-fab-modal-card .lc-consent input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 20px; height: 20px;
+    flex-shrink: 0; margin-top: 1px;
+    border: 1.5px solid #E4D9C5; border-radius: 6px;
+    background: #ffffff; cursor: pointer; position: relative;
+    transition: border-color .15s, background .15s;
+  }
+  .lc-fab-modal-card .lc-consent input[type="checkbox"]:hover { border-color: #FF7A1A; }
+  .lc-fab-modal-card .lc-consent input[type="checkbox"]:checked { background: #FF7A1A; border-color: #FF7A1A; }
+  .lc-fab-modal-card .lc-consent input[type="checkbox"]:checked::after {
+    content: ""; position: absolute; left: 5px; top: 1px;
+    width: 6px; height: 11px;
+    border: solid #ffffff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .lc-fab-modal-card .lc-consent a { color: #E5630A !important; font-weight: 600; text-decoration: underline; }
+
+  /* Кнопка отправки */
+  .lc-fab-modal-card .lc-form-submit {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    width: 100%; margin-top: 6px;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%) !important;
+    color: #ffffff !important;
+    font-family: inherit;
+    font-weight: 700 !important;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 19px 32px;
+    border-radius: 999px;
+    border: 0;
+    box-shadow: 0 8px 22px rgba(255,107,28,.34);
+    transition: transform .14s, box-shadow .22s;
+    cursor: pointer;
+    position: relative;
+  }
+  .lc-fab-modal-card .lc-form-submit:hover { transform: translateY(-1.5px); box-shadow: 0 12px 32px rgba(255,107,28,.46); }
+  .lc-fab-modal-card .lc-form-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; box-shadow: none; }
+  .lc-fab-modal-card .lc-form-submit * { color: #ffffff !important; }
+  .lc-fab-modal-card .lc-btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: lc-spin .7s linear infinite;
+  }
+  .lc-fab-modal-card .lc-form-submit.is-loading .lc-btn-label, .lc-fab-modal-card .lc-form-submit.is-loading .lc-btn-arrow-icon { display: none; }
+  .lc-fab-modal-card .lc-form-submit.is-loading .lc-btn-spinner { display: inline-block; }
+  @keyframes lc-spin { to { transform: rotate(360deg); } }
+
+  .lc-fab-modal-card .lc-form-status { margin-top: 12px; padding: 12px 14px; border-radius: 18px; font-size: .92rem; display: none; }
+  .lc-fab-modal-card .lc-form-status.ok { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
+  .lc-fab-modal-card .lc-form-status.err { display: block; background: #FCEEEE; color: #A1283A; border: 1px solid #F1C8CB; }
+
+  @media (max-width: 720px) {
+    .lc-fab-wrap { right: 16px; bottom: 16px; gap: 10px; }
+    .lc-fab-toggle { width: 56px; height: 56px; }
+    .lc-fab-item span { display: none; }
+    .lc-fab-item { padding: 12px; }
+    .lc-fab-modal { padding: 0; align-items: flex-end; }
+    .lc-fab-modal-card { max-width: none; border-radius: 36px 36px 0 0; padding: 28px 22px 22px; max-height: 88vh; }
+  }
+  @media (max-width: 420px) { .lc-fab-toggle { width: 52px; height: 52px; } .lc-fab-toggle svg { width: 22px; height: 22px; } .lc-fab-wrap { right: 14px; bottom: 14px; } }
+</style>
+
+<div class="lc-fab-wrap" id="lc-fabWrap">
+  <div class="lc-fab-menu" id="lc-fabMenu" hidden>
+    <button type="button" class="lc-fab-item lc-fab-form" data-action="form" aria-label="Открыть форму обратной связи">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span>Форма</span>
+    </button>
+    <a class="lc-fab-item lc-fab-tg" href="https://t.me/Alexander_marketing_bot" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.86 4.32 2.94 11.58c-1.29.52-1.28 1.24-.24 1.55l4.86 1.52 11.24-7.09c.53-.32 1.02-.15.62.2L10.32 14.9l-.34 5.09c.51 0 .73-.24 1.02-.51l2.44-2.37 5.07 3.74c.93.51 1.6.25 1.84-.86l3.32-15.66c.35-1.36-.51-1.98-1.41-1.62-.2.06-.2.06-.4.13z"/></svg>
+      <span>Telegram</span>
+    </a>
+    <a class="lc-fab-item lc-fab-wa" href="https://wa.me/79068161172" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 22h0a10 10 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A10 10 0 0 1 12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10m8.5-18.5A12 12 0 0 0 12 0 12 12 0 0 0 .5 14.9L0 24l7.3-1.9A12 12 0 0 0 12 24h0a12 12 0 0 0 8.5-20.5"/></svg>
+      <span>WhatsApp</span>
+    </a>
+    <a class="lc-fab-item lc-fab-vk" href="https://vk.com/lusen_agency" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.16 18.21c-5.45 0-8.97-3.83-9.12-10.18h2.75c.1 4.66 2.27 6.6 3.89 7v-7h2.62v3.91c1.57-.18 3.2-2.04 3.76-3.91h2.59c-.43 2.3-2.21 4.16-3.47 4.93 1.26.62 3.28 2.24 4.06 5.16h-2.84c-.61-1.94-2.11-3.45-4.1-3.66v3.66z"/></svg>
+      <span>ВКонтакте</span>
+    </a>
+    <a class="lc-fab-item lc-fab-call" href="tel:+79935311172">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>Позвонить</span>
+    </a>
+  </div>
+  <button type="button" class="lc-fab-toggle" id="lc-fabToggle" aria-label="Связаться с нами" aria-expanded="false">
+    <svg class="lc-fab-icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <svg class="lc-fab-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<div class="lc-fab-modal" id="lc-fabModal" hidden role="dialog" aria-modal="true">
+  <div class="lc-fab-modal-backdrop" data-close="1"></div>
+  <div class="lc-fab-modal-card">
+    <button type="button" class="lc-fab-modal-close" data-close="1" aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3>Связаться с нами</h3>
+    <p class="lc-form-sub">Оставьте контакт — ответим за день.</p>
+    <form id="lc-fabForm" novalidate>
+      <!-- honeypot против ботов -->
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
+      <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
+      <label class="lc-field"><span>Телефон или Telegram</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__"></label>
+      <label class="lc-field"><span>Что нужно сделать</span><textarea name="message" rows="3" required placeholder="Коротко по задаче"></textarea></label>
+      <label class="lc-consent">
+        <input type="checkbox" name="consent" required>
+        <span>Согласен с <a href="/privacy" target="_blank" rel="noopener">Политикой конфиденциальности</a>.</span>
+      </label>
+      <button type="submit" class="lc-form-submit" id="lc-fabSubmitBtn">
+        <span class="lc-btn-label">Отправить</span>
+        <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        <span class="lc-btn-spinner" aria-hidden="true"></span>
+      </button>
+      <div class="lc-form-status" id="lc-fabFormStatus" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var wrap = document.getElementById('lc-fabWrap');
+    var toggle = document.getElementById('lc-fabToggle');
+    var menu = document.getElementById('lc-fabMenu');
+    var modal = document.getElementById('lc-fabModal');
+
+    function setFabOpen(open){ if(!wrap||!menu) return; wrap.dataset.open = open?'true':'false'; toggle.setAttribute('aria-expanded', open?'true':'false'); menu.hidden = !open; }
+    function setModalOpen(open){ if(!modal) return; modal.hidden = !open; document.body.style.overflow = open?'hidden':''; if(open){ var first = modal.querySelector('input, textarea'); if(first) setTimeout(function(){ first.focus(); }, 60); } }
+
+    if (toggle) toggle.addEventListener('click', function(){ setFabOpen(wrap.dataset.open !== 'true'); });
+    if (menu) menu.addEventListener('click', function(e){ if(e.target.closest('[data-action="form"]')){ e.preventDefault(); setFabOpen(false); setModalOpen(true); } });
+    if (modal) {
+      modal.addEventListener('click', function(e){ if(e.target.closest('[data-close="1"]')) setModalOpen(false); });
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !modal.hidden) setModalOpen(false); });
+    }
+
+    var fabForm = document.getElementById('lc-fabForm');
+    if (fabForm) fabForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      var btn = document.getElementById('lc-fabSubmitBtn');
+      var status = document.getElementById('lc-fabFormStatus');
+      var ok = false;
+      if (typeof window.lcSubmitLeadForm === 'function') {
+        // Используем общую функцию из 07-contact — там полный fallback с deep link на бот
+        ok = await window.lcSubmitLeadForm(fabForm, btn, status);
+      } else {
+        // Inline-fallback если 07-contact не подключён. Сразу показываем альтернативные каналы,
+        // не пытаемся ходить в сеть (раз 07-contact не вставлен — у клиента, видимо, минимальная сборка).
+        function setBox(k,h){ status.className='lc-form-status '+k; status.innerHTML=h; status.style.display=h?'block':'none'; }
+        var d=new FormData(fabForm), name=d.get('name').trim(), contact=d.get('contact').trim(), message=d.get('message').trim();
+        if(!name||!contact||!message){ setBox('err','Заполните все поля.'); return; }
+        function enc(n,c,m){ var j=JSON.stringify({n:n,c:c,m:m}); return btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, ''); }
+        var p = enc(name,contact,message);
+        var tgUrl = p.length<=64 ? 'https://t.me/Alexander_marketing_bot?start='+p : 'https://t.me/Alexander_marketing_bot';
+        var waText = encodeURIComponent('Здравствуйте!\n\nИмя: '+name+'\nКонтакт: '+contact+'\n\n'+message);
+        setBox('err', '<strong>Выберите способ:</strong><div class="lc-form-fallback"><a class="lc-fb-btn lc-fb-tg" href="'+tgUrl+'" target="_blank" rel="noopener">Telegram</a><a class="lc-fb-btn lc-fb-wa" href="https://wa.me/79068161172?text='+waText+'" target="_blank" rel="noopener">WhatsApp</a></div>');
+      }
+      if (ok) setTimeout(function(){ setModalOpen(false); }, 1800);
+    });
+  })();
+</script>
+
+<!-- Типограф: приклеивает предлоги/частицы/тире к словам, чтобы строки не оканчивались на «из»/«не»/«—». -->
+<script>
+  (function lcTypography(){
+    var NBSP = String.fromCharCode(160);
+    var LONG = 'без|для|над|под|при|про|как|что|чем|или|уже|это|нас|вам|нам';
+    var reShort = new RegExp('(^|[ («„"])([А-Яа-яЁё]{1,2}|' + LONG + ') +', 'g');
+    function typo(s){
+      if (!s || s.indexOf(' ') === -1) return s;
+      s = s.replace(/ ([—–]) /g, NBSP + '$1 ');
+      s = s.replace(reShort, function(m, pre, w){ return pre + w + NBSP; });
+      return s;
+    }
+    var SKIP = { SCRIPT:1, STYLE:1, TEXTAREA:1, INPUT:1, CODE:1, PRE:1, NOSCRIPT:1, SVG:1 };
+    function walk(node){
+      for (var n = node.firstChild; n; n = n.nextSibling){
+        if (n.nodeType === 3){ var t = typo(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; }
+        else if (n.nodeType === 1 && !SKIP[n.tagName]) walk(n);
+      }
+    }
+    function run(){ walk(document.body); }
+    if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(run, 300);
+    else window.addEventListener('DOMContentLoaded', function(){ setTimeout(run, 300); });
+  })();
+</script>

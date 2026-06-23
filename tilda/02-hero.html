@@ -1,0 +1,169 @@
+<!--
+  Hero-секция + marquee-лента «БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ».
+  Самодостаточный — цвета прописаны напрямую (HEX), не зависит от base-styles.
+-->
+<style>
+  .lc-hero {
+    position: relative; padding: 80px 0 140px; overflow: hidden;
+    background: linear-gradient(135deg, #FFF6E8 0%, #FFEAD0 45%, #FFD7B5 100%) !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-hero *, .lc-hero *::before, .lc-hero *::after { box-sizing: border-box; }
+  .lc-hero::before {
+    content: ""; position: absolute; width: 520px; height: 520px;
+    border-radius: 50%; top: -120px; right: -160px;
+    background: radial-gradient(circle, rgba(255,180,130,.22), transparent 70%);
+    filter: blur(24px); pointer-events: none; z-index: 0;
+  }
+  .lc-hero-fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 160px;
+    background: linear-gradient(180deg, rgba(255,246,232,0) 0%, #FFF6E8 100%);
+    pointer-events: none; z-index: 1;
+  }
+  .lc-hero-inner { position: relative; z-index: 2; max-width: 880px; padding: 24px 24px 0; margin: 0 auto; }
+  .lc-hero h1 {
+    margin: 0 0 28px;
+    font-family: 'Unbounded', 'Manrope', sans-serif;
+    font-size: clamp(2.6rem, 6.4vw, 5.4rem);
+    font-weight: 800;
+    letter-spacing: -.025em;
+    line-height: 1.05;
+    color: #15151B !important;
+  }
+  .lc-hero h1 .lc-grad {
+    background: linear-gradient(180deg, #FFD000 0%, #FF8E14 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent;
+  }
+  .lc-hero-sub {
+    font-size: clamp(1.05rem, 1.6vw, 1.22rem);
+    color: #15151B !important;
+    max-width: 580px; margin: 0 0 40px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  /* КНОПКА — критично, чтобы текст был белым на оранжевом фоне */
+  .lc-hero .lc-btn-primary {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700 !important;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 19px 32px;
+    border-radius: 999px;
+    border: 0;
+    text-decoration: none !important;
+    box-shadow: 0 8px 22px rgba(255,107,28,.34);
+    transition: transform .14s, box-shadow .22s;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .lc-hero .lc-btn-primary:hover { transform: translateY(-1.5px); box-shadow: 0 12px 32px rgba(255,107,28,.46); }
+  .lc-hero .lc-btn-primary svg { transition: transform .2s; }
+  .lc-hero .lc-btn-primary:hover svg { transform: translateX(3px); }
+  .lc-hero .lc-btn-primary * { color: #ffffff !important; }
+
+  .lc-hero-decor {
+    position: absolute; right: 4%; top: 50%;
+    width: clamp(220px, 28vw, 380px);
+    z-index: 1; pointer-events: none;
+    filter: drop-shadow(0 24px 48px rgba(255,107,28,.35));
+    animation: lc-float 6s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes lc-float {
+    0%,100% { transform: translateY(-50%) rotate(-4deg); }
+    50% { transform: translateY(calc(-50% - 14px)) rotate(4deg); }
+  }
+  @media (max-width: 1080px) { .lc-hero-decor { opacity: .35; right: -40px; width: 320px; } }
+  @media (max-width: 720px) {
+    .lc-hero-decor { display: none; }
+    .lc-hero { padding: 48px 0 110px; }
+    .lc-hero-fade { height: 110px; }
+  }
+
+  /* Marquee */
+  .lc-marquee-band { position: relative; height: 0; z-index: 6; pointer-events: none; }
+  .lc-marquee {
+    position: absolute; left: -10vw; right: -10vw; top: -32px;
+    padding: 18px 0;
+    background: linear-gradient(90deg, #FFD400 0%, #FF9418 50%, #FFD400 100%) !important;
+    transform: rotate(-3.5deg); transform-origin: center;
+    box-shadow: 0 12px 36px rgba(255,130,30,.32), 0 1px 0 rgba(255,255,255,.45) inset;
+    overflow: hidden; white-space: nowrap;
+    font-family: 'Unbounded','Manrope',sans-serif;
+  }
+  .lc-marquee-track {
+    display: inline-flex; gap: 40px; align-items: center;
+    animation: lc-marquee 26s linear infinite;
+    padding-right: 40px; will-change: transform;
+  }
+  .lc-marquee-track span {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: .04em;
+    color: #2A1700 !important;
+  }
+  .lc-marquee-track .lc-star { font-size: 1.4rem; color: #ffffff !important; opacity: .9; }
+  @keyframes lc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (max-width: 720px) {
+    .lc-marquee-track span { font-size: .92rem; }
+    .lc-marquee { left: -20vw; right: -20vw; padding: 14px 0; }
+    .lc-marquee-track { gap: 28px; }
+  }
+
+  /* Конверсия: eyebrow + 2 CTA + trust-строка */
+  .lc-hero-eyebrow { display: inline-block; font-size: .82rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #E5630A !important; background: rgba(255,122,26,.12); padding: 8px 16px; border-radius: 999px; margin-bottom: 22px; }
+  .lc-hero-cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 8px 0 36px; }
+  .lc-btn-ghost { display: inline-flex; align-items: center; justify-content: center; background: #ffffff !important; color: #15151B !important; font-family: 'Manrope',sans-serif; font-weight: 700 !important; font-size: 1.05rem; padding: 19px 32px; border-radius: 999px; border: 1px solid #E4D9C5; text-decoration: none !important; transition: transform .14s, box-shadow .2s, color .15s; cursor: pointer; }
+  .lc-btn-ghost:hover { border-color: #FF7A1A; color: #E5630A !important; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(20,20,30,.08); }
+  .lc-hero-trust { display: flex; flex-wrap: wrap; gap: 14px 36px; max-width: 640px; list-style: none; margin: 0; padding: 0; }
+  .lc-hero-trust li { display: flex; flex-direction: column; gap: 2px; }
+  .lc-hero-trust strong { font-size: 1.05rem; font-weight: 800; color: #15151B; display: inline-flex; align-items: center; gap: 7px; }
+  .lc-hero-trust strong::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg,#FF5B0E,#FFA928); color: #fff; font-size: .8rem; flex-shrink: 0; }
+  .lc-hero-trust span { color: #6B6B75; font-size: .9rem; }
+</style>
+
+<section class="lc-hero">
+  <div class="lc-hero-inner">
+    <span class="lc-hero-eyebrow">Маркетинговое агентство в&nbsp;Ижевске</span>
+    <h1>Приводим клиентов из&nbsp;рекламы<br>и&nbsp;соцсетей&nbsp;— <span class="lc-grad">под&nbsp;ключ</span></h1>
+    <p class="lc-hero-sub">Берём на&nbsp;себя SMM, рекламу, сайты и&nbsp;аналитику. Считаем каждый рубль: стоимость заявки, окупаемость, продажи. Не&nbsp;сработало&nbsp;— пересобираем стратегию за&nbsp;свой счёт.</p>
+    <div class="lc-hero-cta-row">
+      <a class="lc-btn-primary" href="#lc-contact">
+        <span>Получить бесплатный аудит</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+      </a>
+      <a class="lc-btn-ghost" href="#lc-services">Услуги и цены</a>
+    </div>
+    <ul class="lc-hero-trust">
+      <li><strong>Работаем по&nbsp;KPI</strong><span>платите за&nbsp;результат</span></li>
+      <li><strong>Запуск за&nbsp;7&nbsp;дней</strong><span>от&nbsp;заявки до&nbsp;первых лидов</span></li>
+      <li><strong>Открытый прайс</strong><span>без&nbsp;«узнайте стоимость»</span></li>
+    </ul>
+  </div>
+  <img src="https://raw.githack.com/aleksanrmol4-a11y/lyusen-site/feat/redesign-pass-1/assets/logo.png" alt="" class="lc-hero-decor" aria-hidden="true">
+  <div class="lc-hero-fade" aria-hidden="true"></div>
+</section>
+
+<div class="lc-marquee-band" aria-hidden="true">
+  <div class="lc-marquee">
+    <div class="lc-marquee-track">
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+      <span>БЕСПЛАТНАЯ КОНСУЛЬТАЦИЯ НОВЫМ КЛИЕНТАМ!</span><span class="lc-star">✦</span>
+    </div>
+  </div>
+</div>

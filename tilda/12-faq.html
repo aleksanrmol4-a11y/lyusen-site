@@ -1,0 +1,105 @@
+<!--
+  FAQ — частые вопросы (аккордеон на <details>, без JS).
+  Вставлять: T123 «HTML-код». Рекомендуемое место — ПОСЛЕ кейсов (06-cases),
+  перед контактами (07-contact).
+  Самодостаточный, цвета прямыми HEX.
+  Бонус для SEO: в конце блока JSON-LD разметка FAQPage — Яндекс и Google
+  могут показывать вопросы прямо в выдаче.
+-->
+<style>
+  .lc-faq { padding: 64px 0 96px; background: #FFEFD9; font-family: 'Manrope', -apple-system, sans-serif; }
+  .lc-faq * { box-sizing: border-box; }
+  .lc-faq-wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+  .lc-faq-head { text-align: center; margin-bottom: 40px; }
+  .lc-faq-eyebrow { display: inline-block; font-size: .82rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #B84D00; background: rgba(255,122,26,.10); padding: 7px 14px; border-radius: 999px; margin-bottom: 16px; }
+  .lc-faq h2 { font-family: 'Unbounded','Manrope',sans-serif; font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem); color: #15151B; letter-spacing: -.025em; line-height: 1.05; margin: 0; }
+  .lc-faq-item { background: #fff; border: 1px solid #F1E7D6; border-radius: 28px; margin-bottom: 12px; overflow: hidden; transition: box-shadow .2s ease; }
+  .lc-faq-item[open] { box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 8px 28px rgba(20,20,30,.06); }
+  .lc-faq-item summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 24px; cursor: pointer; font-weight: 700; font-size: 1.05rem; color: #15151B; list-style: none; user-select: none; transition: color .15s; }
+  .lc-faq-item summary::-webkit-details-marker { display: none; }
+  .lc-faq-item summary:hover { color: #E5630A; }
+  .lc-faq-icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,122,26,.12); position: relative; transition: transform .25s ease, background .2s ease; }
+  .lc-faq-icon::before, .lc-faq-icon::after { content: ""; position: absolute; top: 50%; left: 50%; background: #E5630A; transform: translate(-50%, -50%); border-radius: 2px; }
+  .lc-faq-icon::before { width: 14px; height: 2px; }
+  .lc-faq-icon::after  { width: 2px; height: 14px; }
+  .lc-faq-item[open] .lc-faq-icon { transform: rotate(45deg); background: #FF7A1A; }
+  .lc-faq-item[open] .lc-faq-icon::before, .lc-faq-item[open] .lc-faq-icon::after { background: #fff; }
+  .lc-faq-item > p { padding: 0 70px 22px 24px; margin: 0; color: #2A2A33; line-height: 1.6; font-size: 1rem; }
+  @media (max-width: 720px) {
+    .lc-faq { padding: 48px 0 56px; }
+    .lc-faq-item summary { padding: 16px 18px; font-size: .98rem; }
+    .lc-faq-item > p { padding: 0 18px 18px; }
+  }
+</style>
+
+<section class="lc-faq">
+  <div class="lc-faq-wrap">
+    <header class="lc-faq-head">
+      <span class="lc-faq-eyebrow">Вопросы и&nbsp;ответы</span>
+      <h2>Частые вопросы</h2>
+    </header>
+    <details class="lc-faq-item">
+      <summary><span>Сколько стоят ваши услуги?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>Прайс открыт и&nbsp;весь на&nbsp;сайте: таргет ВКонтакте&nbsp;— от&nbsp;5&nbsp;000&nbsp;₽/мес, контекстная реклама&nbsp;— от&nbsp;15&nbsp;000&nbsp;₽/мес, SMM под&nbsp;ключ&nbsp;— от&nbsp;27&nbsp;000&nbsp;₽/мес. Рекламный бюджет считается отдельно и&nbsp;остаётся вашим. Точную смету под&nbsp;вашу задачу даём после бесплатного аудита.</p>
+    </details>
+    <details class="lc-faq-item">
+      <summary><span>Что значит «работаем по&nbsp;KPI»?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>Перед стартом фиксируем цель в&nbsp;цифрах: стоимость заявки, количество лидов, окупаемость. Если за&nbsp;месяц не&nbsp;выходим на&nbsp;согласованные показатели&nbsp;— пересобираем стратегию за&nbsp;свой счёт, а&nbsp;не&nbsp;выставляем счёт за&nbsp;«попытку».</p>
+    </details>
+    <details class="lc-faq-item">
+      <summary><span>Как быстро появятся первые результаты?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>Запускаем рекламу за&nbsp;7&nbsp;дней от&nbsp;заявки. Первые лиды обычно приходят в&nbsp;первые недели после запуска, а&nbsp;на&nbsp;устойчивые показатели кампания выходит за&nbsp;2–3&nbsp;месяца оптимизации.</p>
+    </details>
+    <details class="lc-faq-item">
+      <summary><span>Что входит в&nbsp;бесплатный аудит?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>За&nbsp;30&nbsp;минут на&nbsp;созвоне разбираем вашу текущую рекламу и&nbsp;соцсети, смотрим 2–3&nbsp;конкурентов в&nbsp;нише, говорим, с&nbsp;чего начать, и&nbsp;даём прогноз стоимости заявки. Бесплатно и&nbsp;без обязательств&nbsp;— даже если не&nbsp;станете нашим клиентом.</p>
+    </details>
+    <details class="lc-faq-item">
+      <summary><span>Как я&nbsp;буду понимать, что работа идёт?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>Каждый месяц вы&nbsp;получаете отчёт с&nbsp;цифрами: что сделали, сколько заявок привели и&nbsp;какая стоимость заявки. Общаетесь напрямую с&nbsp;исполнителями&nbsp;— без&nbsp;менеджеров-посредников.</p>
+    </details>
+    <details class="lc-faq-item">
+      <summary><span>Вы&nbsp;работаете только с&nbsp;Ижевском?</span><span class="lc-faq-icon" aria-hidden="true"></span></summary>
+      <p>Мы&nbsp;базируемся в&nbsp;Ижевске, но&nbsp;реклама и&nbsp;соцсети к&nbsp;городу не&nbsp;привязаны&nbsp;— работаем с&nbsp;бизнесом по&nbsp;всей России удалённо.</p>
+    </details>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Сколько стоят услуги маркетингового агентства Люсъен?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Прайс открытый: таргетированная реклама ВКонтакте — от 5 000 ₽/мес, контекстная реклама — от 15 000 ₽/мес, SMM под ключ — от 27 000 ₽/мес. Рекламный бюджет считается отдельно. Точная смета — после бесплатного аудита." }
+    },
+    {
+      "@type": "Question",
+      "name": "Что значит «работаем по KPI»?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Перед стартом фиксируем цель в цифрах: стоимость заявки, количество лидов, окупаемость. Если за месяц не выходим на согласованные показатели — пересобираем стратегию за свой счёт." }
+    },
+    {
+      "@type": "Question",
+      "name": "Как быстро появятся первые результаты?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Запуск рекламы — за 7 дней от заявки. Первые лиды обычно приходят в первые недели после запуска, устойчивые показатели складываются за 2–3 месяца оптимизации." }
+    },
+    {
+      "@type": "Question",
+      "name": "Что входит в бесплатный аудит маркетинга?",
+      "acceptedAnswer": { "@type": "Answer", "text": "За 30 минут на созвоне разбираем текущую рекламу и соцсети, анализируем 2–3 конкурентов, даём план первых шагов и прогноз стоимости заявки. Бесплатно и без обязательств." }
+    },
+    {
+      "@type": "Question",
+      "name": "Как контролировать ход работы?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Каждый месяц — отчёт с цифрами: что сделано, сколько заявок, какая стоимость заявки. Общение напрямую с исполнителями." }
+    },
+    {
+      "@type": "Question",
+      "name": "Вы работаете только с Ижевском?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Базируемся в Ижевске, но работаем с бизнесом по всей России удалённо — реклама и соцсети к городу не привязаны." }
+    }
+  ]
+}
+</script>

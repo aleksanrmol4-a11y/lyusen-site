@@ -1,0 +1,362 @@
+<!--
+  Контакты + основная форма заявки (с чекбоксом согласия на ПДн).
+  Самодостаточный — цвета прямыми HEX. Не зависит от base-styles.
+
+  ВАЖНО: токен Telegram-бота зашит в JS. Альтернатива — родная Telegram-интеграция Тильды.
+-->
+<style>
+  .lc-contact {
+    padding: 96px 0;
+    background: #FFF6E8 !important;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #15151B;
+  }
+  .lc-contact *, .lc-contact *::before, .lc-contact *::after { box-sizing: border-box; }
+  .lc-contact-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .lc-contact-inner { display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: start; }
+
+  .lc-contact-info .lc-eyebrow {
+    display: inline-block; font-size: .82rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #FF7A1A !important;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,122,26,.10);
+    margin: 0 0 20px;
+  }
+  .lc-contact-info h2 {
+    font-family: 'Unbounded','Manrope',sans-serif;
+    font-weight: 800; font-size: clamp(2rem, 4.4vw, 3.6rem);
+    letter-spacing: -.025em; line-height: 1.05;
+    color: #15151B !important;
+    margin: 4px 0 18px;
+  }
+  .lc-contact-lead { color: #6B6B75 !important; margin: 0 0 36px; max-width: 460px; }
+  .lc-contact-list { list-style: none; padding: 0; margin: 0; }
+  .lc-contact-list li {
+    display: flex; align-items: center; gap: 18px;
+    padding: 16px 0; border-bottom: 1px solid #F1E7D6;
+  }
+  .lc-contact-list li:last-child { border-bottom: 0; }
+  .lc-contact-label { width: 120px; color: #6B6B75 !important; font-size: .94rem; font-weight: 600; }
+  .lc-contact-list a {
+    font-weight: 700;
+    color: #15151B !important;
+    text-decoration: none !important;
+    transition: color .15s;
+  }
+  .lc-contact-list a:hover { color: #FF7A1A !important; }
+
+  .lc-lead-form {
+    background: #ffffff !important;
+    padding: 40px 36px;
+    border-radius: 36px;
+    border: 1px solid #F1E7D6;
+    box-shadow: 0 1px 2px rgba(20,20,30,.04), 0 8px 28px rgba(20,20,30,.06);
+  }
+  .lc-lead-form h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: #15151B !important;
+    margin: 0 0 6px;
+  }
+  .lc-form-sub { color: #6B6B75 !important; margin: 0 0 28px; }
+  .lc-field { display: block; margin-bottom: 18px; }
+  .lc-field > span { display: block; font-size: .9rem; font-weight: 600; color: #2A2A33 !important; margin-bottom: 8px; }
+  .lc-field input, .lc-field textarea {
+    width: 100%; padding: 15px 18px;
+    font-family: inherit; font-size: 1rem;
+    color: #15151B !important;
+    background: #FFFAF1 !important;
+    border: 1px solid #E4D9C5;
+    border-radius: 18px;
+    transition: border-color .15s, background .15s;
+  }
+  .lc-field input:focus, .lc-field textarea:focus {
+    outline: none;
+    border-color: #FF7A1A;
+    background: #ffffff !important;
+  }
+  .lc-field textarea { resize: vertical; min-height: 70px; }
+  .lc-field > span em { font-style: normal; color: #6B6B75; font-weight: 500; }
+
+  /* Бенефиты под заголовком */
+  .lc-contact-benefits { display: grid; gap: 10px; margin: 0 0 28px; list-style: none; padding: 0; }
+  .lc-contact-benefits li { position: relative; padding-left: 30px; color: #2A2A33; font-weight: 600; }
+  .lc-contact-benefits li::before { content: "✓"; position: absolute; left: 0; top: 1px; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,122,26,.14); color: #E5630A; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+
+  /* Чипсы выбора темы */
+  .lc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lc-chip { font-family: inherit; font-size: .92rem; font-weight: 600; padding: 9px 16px; border-radius: 999px; background: #FFFAF1; border: 1px solid #E4D9C5; color: #2A2A33; cursor: pointer; transition: all .15s; }
+  .lc-chip:hover { border-color: #FF7A1A; color: #E5630A; }
+  .lc-chip.is-active { background: linear-gradient(135deg,#FF5B0E,#FFA928); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(255,107,28,.3); }
+
+  /* Мелкий текст-согласие */
+  .lc-form-fine { color: #6B6B75; font-size: .8rem; line-height: 1.5; margin: 14px 0 0; }
+  .lc-form-fine a { color: #E5630A; font-weight: 600; text-decoration: underline; }
+
+  /* Чекбокс согласия (legacy, на случай если где-то остался) */
+  .lc-consent {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 4px 0 16px;
+    font-size: .85rem;
+    color: #6B6B75 !important;
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+  }
+  .lc-consent input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 20px; height: 20px;
+    flex-shrink: 0; margin-top: 1px;
+    border: 1.5px solid #E4D9C5;
+    border-radius: 6px;
+    background: #ffffff;
+    cursor: pointer;
+    position: relative;
+    transition: border-color .15s, background .15s;
+  }
+  .lc-consent input[type="checkbox"]:hover { border-color: #FF7A1A; }
+  .lc-consent input[type="checkbox"]:checked { background: #FF7A1A; border-color: #FF7A1A; }
+  .lc-consent input[type="checkbox"]:checked::after {
+    content: ""; position: absolute;
+    left: 5px; top: 1px;
+    width: 6px; height: 11px;
+    border: solid #ffffff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .lc-consent a { color: #E5630A !important; font-weight: 600; text-decoration: underline; }
+  .lc-consent a:hover { color: #FF7A1A !important; }
+
+  /* Кнопка отправки — белый текст на оранжевом */
+  .lc-form-submit {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%) !important;
+    color: #ffffff !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700 !important;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 19px 32px;
+    border-radius: 999px;
+    border: 0;
+    text-decoration: none !important;
+    box-shadow: 0 8px 22px rgba(255,107,28,.34);
+    transition: transform .14s, box-shadow .22s;
+    cursor: pointer;
+    margin-top: 6px;
+    position: relative;
+  }
+  .lc-form-submit:hover { transform: translateY(-1.5px); box-shadow: 0 12px 32px rgba(255,107,28,.46); }
+  .lc-form-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; box-shadow: none; }
+  .lc-form-submit * { color: #ffffff !important; }
+  .lc-form-submit svg { transition: transform .2s; }
+  .lc-form-submit:hover svg { transform: translateX(3px); }
+
+  .lc-btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: lc-spin .7s linear infinite;
+  }
+  .lc-form-submit.is-loading .lc-btn-label, .lc-form-submit.is-loading .lc-btn-arrow-icon { display: none; }
+  .lc-form-submit.is-loading .lc-btn-spinner { display: inline-block; }
+  @keyframes lc-spin { to { transform: rotate(360deg); } }
+
+  .lc-form-status { margin-top: 14px; padding: 14px 16px; border-radius: 18px; font-size: .95rem; display: none; }
+  .lc-form-status.ok { display: block; background: #EAFBEF; color: #1C7A36; border: 1px solid #BFEACB; }
+  .lc-form-status.err { display: block; background: #FCEEEE; color: #A1283A; border: 1px solid #F1C8CB; }
+
+  @media (max-width: 1024px) { .lc-contact { padding: 72px 0; } .lc-contact-inner { grid-template-columns: 1fr; gap: 48px; } }
+  @media (max-width: 720px) { .lc-contact { padding: 56px 0; } .lc-lead-form { padding: 24px 18px; } .lc-contact-list li { gap: 10px; padding: 12px 0; } .lc-contact-label { width: 88px; font-size: .86rem; } }
+</style>
+
+<section id="lc-contact" class="lc-contact">
+  <div class="lc-contact-container">
+    <div class="lc-contact-inner">
+      <div class="lc-contact-info">
+        <span class="lc-eyebrow">Бесплатный аудит</span>
+        <h2>Оставьте заявку —<br>покажем, где растёт прибыль</h2>
+        <p class="lc-contact-lead">Достаточно имени и контакта. В течение дня свяжемся, зададим пару вопросов и пришлём разбор вашего маркетинга. Без навязывания и долгих брифов.</p>
+        <ul class="lc-contact-benefits">
+          <li>Ответим в течение дня в рабочее время</li>
+          <li>Бесплатно, даже если не станете клиентом</li>
+          <li>Общаетесь напрямую с основателем</li>
+        </ul>
+        <ul class="lc-contact-list">
+          <li><span class="lc-contact-label">WhatsApp</span><a href="https://wa.me/79068161172" target="_blank" rel="noopener">+7 906 816-11-72</a></li>
+          <li><span class="lc-contact-label">Телефон</span><a href="tel:+79935311172">+7 993 531-11-72</a></li>
+          <li><span class="lc-contact-label">Email</span><a href="mailto:info@lyusen18.ru">info@lyusen18.ru</a></li>
+          <li><span class="lc-contact-label">ВКонтакте</span><a href="https://vk.com/lusen_agency" target="_blank" rel="noopener">vk.com/lusen_agency</a></li>
+        </ul>
+      </div>
+      <form id="lc-leadForm" class="lc-lead-form" novalidate>
+        <h3>Получить бесплатный аудит</h3>
+        <p class="lc-form-sub">Заявка прилетит лично основателю агентства — Александру.</p>
+        <!-- honeypot против ботов -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none">
+        <label class="lc-field"><span>Как вас зовут</span><input type="text" name="name" required autocomplete="name" placeholder="Александр"></label>
+        <label class="lc-field"><span>Телефон или мессенджер</span><input type="text" name="contact" required autocomplete="tel" placeholder="+7 ___ ___-__-__  или  @username"></label>
+        <div class="lc-field"><span>Что интересует <em>— необязательно</em></span>
+          <div class="lc-chips" id="lc-topicChips">
+            <button type="button" class="lc-chip" data-topic="SMM и соцсети">SMM и соцсети</button>
+            <button type="button" class="lc-chip" data-topic="Реклама (Директ, таргет)">Реклама</button>
+            <button type="button" class="lc-chip" data-topic="Сайт или CRM">Сайт / CRM</button>
+            <button type="button" class="lc-chip" data-topic="Маркетинг под ключ">Маркетинг под ключ</button>
+            <button type="button" class="lc-chip" data-topic="Нужна консультация">Просто консультация</button>
+          </div>
+        </div>
+        <label class="lc-field"><span>Комментарий <em>— если хотите добавить</em></span><textarea name="message" rows="2" placeholder="Пару слов о бизнесе и задаче"></textarea></label>
+        <button type="submit" class="lc-form-submit" id="lc-submitBtn">
+          <span class="lc-btn-label">Получить аудит бесплатно</span>
+          <svg class="lc-btn-arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+          <span class="lc-btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="lc-form-fine">Нажимая кнопку, вы соглашаетесь с <a href="/privacy" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</p>
+        <div class="lc-form-status" id="lc-formStatus" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lc-form-status small { display: block; margin-top: 10px; color: #6B6B75; font-size: .82rem; }
+  .lc-form-fallback { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .lc-fb-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 999px; font-weight: 700; font-size: .9rem; text-decoration: none !important; color: #ffffff !important; transition: transform .15s; flex: 1 1 auto; min-width: 110px; }
+  .lc-fb-btn:hover { transform: translateY(-1px); }
+  .lc-fb-vk { background: #0077FF !important; box-shadow: 0 4px 12px rgba(0,119,255,.35); }
+  .lc-fb-wa { background: #25D366 !important; box-shadow: 0 4px 12px rgba(37,211,102,.35); }
+  .lc-fb-mail { background: #15151B !important; box-shadow: 0 4px 12px rgba(20,20,30,.25); }
+</style>
+<script>
+  (function(){
+    // Прямой путь к api.vk.com через JSONP — обход CORS и блокировок Cloudflare в РФ.
+    //  1) JSONP к api.vk.com/method/messages.send (основной, без сервера-посредника)
+    //  2) Резерв: POST на Worker (если api.vk.com медленный)
+    //  3) Fallback кнопки: ВКонтакте / WhatsApp / Email
+    var VK_GROUP_TOKEN = 'vk1.a.B-HPWpsVfZVI0SBPu5You3dS50UnE5fNPiOPlevFCwNSpov5SGZgNZIAk_8UjeF8bnK0WklaiDCI5RNetb0ptxt1t49zRXfTrN_TL0Fkg0s3wivVdGRFSTM67DDDmpImS4wz79PxPwb3-OleZFfcIAlCupUD1buV--SXePvwk8MzlO7QOxM84RG3eu9OracAgRRupd89aGfrqwG8hbeiCQ';
+    var VK_PEER_ID = '389765912';
+    var VK_API_V = '5.199';
+    var LEAD_ENDPOINT = 'https://lyusen-bot-forwarder.lyusen-agency.workers.dev/lead';
+    var VK_GROUP_URL = 'https://vk.com/lusen_agency';
+    var VK_TIMEOUT_MS = 4000;
+    var TIMEOUT_MS = 6000;
+
+    // JSONP-отправка прямо в api.vk.com — обходит CORS, доступен в РФ нативно.
+    function vkSendDirect(name, contact, message, source) {
+      return new Promise(function(resolve) {
+        var text = '🔥 Заявка с сайта Люсъен\nИсточник: ' + source + '\n\n👤 ' + name + '\n📱 ' + contact + '\n\n💬 ' + message;
+        var cb = 'lcVkCb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+        var done = false;
+        var script = document.createElement('script');
+        var finish = function(r) {
+          if (done) return; done = true;
+          try { delete window[cb]; } catch(_){}
+          if (script.parentNode) script.parentNode.removeChild(script);
+          resolve(r);
+        };
+        window[cb] = function(r) {
+          if (r && r.response) finish({ ok: true });
+          else finish({ ok: false, err: r && r.error ? r.error.error_msg : 'unknown' });
+        };
+        var params = 'access_token=' + encodeURIComponent(VK_GROUP_TOKEN) +
+          '&peer_id=' + VK_PEER_ID +
+          '&message=' + encodeURIComponent(text) +
+          '&random_id=' + Math.floor(Math.random()*2147483647) +
+          '&dont_parse_links=1&v=' + VK_API_V +
+          '&callback=' + cb;
+        script.src = 'https://api.vk.com/method/messages.send?' + params;
+        script.onerror = function() { finish({ ok: false, err: 'network' }); };
+        document.head.appendChild(script);
+        setTimeout(function() { finish({ ok: false, err: 'timeout' }); }, VK_TIMEOUT_MS);
+      });
+    }
+
+    function encodeLead(n, c, m){
+      var json = JSON.stringify({n:n, c:c, m:m});
+      var b64 = btoa(unescape(encodeURIComponent(json)));
+      return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, '');
+    }
+    function fallbackHtml(n, c, m){
+      var waText = encodeURIComponent('Здравствуйте! Хочу обсудить:\n\nИмя: '+n+'\nКонтакт: '+c+'\n\n'+m);
+      var mailBody = encodeURIComponent('Имя: '+n+'\nКонтакт: '+c+'\n\n'+m);
+      return '<strong>Сеть подвела — напишите напрямую:</strong>'+
+        '<div class="lc-form-fallback">'+
+        '<a class="lc-fb-btn lc-fb-vk" href="'+VK_GROUP_URL+'" target="_blank" rel="noopener">ВКонтакте</a>'+
+        '<a class="lc-fb-btn lc-fb-wa" href="https://wa.me/79068161172?text='+waText+'" target="_blank" rel="noopener">WhatsApp</a>'+
+        '<a class="lc-fb-btn lc-fb-mail" href="mailto:info@lyusen18.ru?subject='+encodeURIComponent('Заявка с сайта')+'&body='+mailBody+'">Email</a>'+
+        '</div>'+
+        '<small>В WhatsApp и Email заявка уже подготовлена — просто нажмите «Отправить».</small>';
+    }
+
+    // Чипсы выбора темы
+    var lcSelectedTopic = '';
+    document.querySelectorAll('#lc-topicChips .lc-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        var was = chip.classList.contains('is-active');
+        document.querySelectorAll('#lc-topicChips .lc-chip').forEach(function(c){ c.classList.remove('is-active'); });
+        if (!was) { chip.classList.add('is-active'); lcSelectedTopic = chip.getAttribute('data-topic') || ''; }
+        else { lcSelectedTopic = ''; }
+      });
+    });
+
+    window.lcSubmitLeadForm = async function(formEl, btnEl, statusBox){
+      if (!formEl.reportValidity()) return false;
+      var d = new FormData(formEl);
+      var name = (d.get('name')||'').toString().trim();
+      var contact = (d.get('contact')||'').toString().trim();
+      var message = (d.get('message')||'').toString().trim();
+      var honeypot = (d.get('website')||'').toString().trim();
+      var source = formEl.id || 'tilda-main';
+      function setBox(k, html){ if(!statusBox) return; statusBox.className='lc-form-status '+k; statusBox.innerHTML=html; statusBox.style.display=html?'block':'none'; }
+      // Обязательны только имя+контакт. Сообщение опционально.
+      if (!name||!contact){ setBox('err','Укажите имя и телефон — этого достаточно.'); return false; }
+      if (lcSelectedTopic) { message = 'Интересует: ' + lcSelectedTopic + (message ? '\n\n' + message : ''); }
+      if (!message) message = 'Заявка с сайта (без комментария)';
+      btnEl.classList.add('is-loading'); btnEl.disabled=true; setBox('','');
+
+      // ШАГ 1: Прямой JSONP к api.vk.com
+      try {
+        var vk = await vkSendDirect(name, contact, message, source);
+        if (vk.ok) {
+          setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
+          btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
+        }
+        console.warn('JSONP VK failed:', vk.err);
+      } catch(e) { console.warn('JSONP VK exception:', e); }
+
+      // ШАГ 2: Резерв через Cloudflare Worker
+      var ctrl = new AbortController(); var tid = setTimeout(function(){ctrl.abort();}, TIMEOUT_MS);
+      try {
+        var res = await fetch(LEAD_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name: name, contact: contact, message: message, website: honeypot, source: source + '+worker' }),
+          signal: ctrl.signal
+        });
+        clearTimeout(tid);
+        var json = await res.json().catch(function(){ return {}; });
+        if (res.ok && json.ok) {
+          setBox('ok','✅ Заявка отправлена. Свяжемся в течение дня.'); formEl.reset();
+          btnEl.classList.remove('is-loading'); btnEl.disabled=false; return true;
+        }
+      } catch(err){ clearTimeout(tid); console.warn('Worker fallback тоже упал:', err); }
+
+      // ШАГ 3: Все каналы упали — img-hack + fallback кнопки
+      try {
+        var p = encodeLead(name, contact, message);
+        var im = new Image(); im.referrerPolicy = 'no-referrer';
+        im.src = LEAD_ENDPOINT + '?p=' + p + '&t=' + Date.now();
+      } catch(_) {}
+      setBox('err', fallbackHtml(name, contact, message));
+      btnEl.classList.remove('is-loading'); btnEl.disabled=false; return false;
+    };
+
+    var form = document.getElementById('lc-leadForm');
+    if (form) form.addEventListener('submit', function(e){ e.preventDefault(); window.lcSubmitLeadForm(form, document.getElementById('lc-submitBtn'), document.getElementById('lc-formStatus')); });
+  })();
+</script>

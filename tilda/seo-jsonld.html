@@ -1,0 +1,103 @@
+<!--
+  Schema.org JSON-LD разметка для Тильды.
+  Вставлять: Настройки сайта → Изменить HTML-код сайта → Дополнительный HTML-код в <head>.
+  Либо первым T123-блоком на главной странице (поисковики читают <script type="application/ld+json"> где угодно).
+
+  Что внутри:
+  - LocalBusiness/ProfessionalService — основная карточка организации с адресом, часами, ценами
+  - WebSite — связка сайта с организацией
+  - Person — основатель агентства
+
+  Все реквизиты ИП уже подставлены (ОГРНИП 325180000087573, ИНН 183211417106, ул. Пушкинская 173а).
+-->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "ProfessionalService"],
+  "@id": "https://lyusen18.ru/#organization",
+  "name": "Люсъен",
+  "alternateName": "Маркетинговое агентство Люсъен",
+  "description": "Маркетинговое агентство полного цикла в Ижевске. SMM, контекстная реклама, таргет, сайты, брендинг, аналитика. Работаем по KPI.",
+  "url": "https://lyusen18.ru/",
+  "logo": "https://lyusen18.ru/assets/logo.png",
+  "image": "https://lyusen18.ru/assets/logo.png",
+  "telephone": "+7-993-531-11-72",
+  "email": "info@lyusen18.ru",
+  "priceRange": "₽₽",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "ул. Пушкинская, 173а, 1 этаж",
+    "addressLocality": "Ижевск",
+    "addressRegion": "Удмуртская Республика",
+    "postalCode": "426057",
+    "addressCountry": "RU"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 56.852592,
+    "longitude": 53.211581
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "09:00",
+    "closes": "19:00"
+  }],
+  "areaServed": [
+    { "@type": "City", "name": "Ижевск" },
+    { "@type": "AdministrativeArea", "name": "Удмуртская Республика" },
+    { "@type": "Country", "name": "Россия" }
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Молчанов Александр Леонидович"
+  },
+  "sameAs": [
+    "https://vk.com/lusen_agency",
+    "https://t.me/Alexander_marketing_bot"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Маркетинговые услуги агентства Люсъен",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "SMM под ключ" }, "price": "27000", "priceCurrency": "RUB" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Контекстная и таргетированная реклама" }, "price": "15000", "priceCurrency": "RUB" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Сайты и CRM" }, "price": "3000", "priceCurrency": "RUB" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Аналитика и стратегия" }, "price": "8000", "priceCurrency": "RUB" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Контент и брендинг" }, "price": "15000", "priceCurrency": "RUB" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Маркетинг под ключ" } }
+    ]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://lyusen18.ru/#website",
+  "url": "https://lyusen18.ru/",
+  "name": "Люсъен — маркетинговое агентство",
+  "inLanguage": "ru-RU",
+  "publisher": { "@id": "https://lyusen18.ru/#organization" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Александр Молчанов",
+  "jobTitle": "Основатель агентства Люсъен",
+  "worksFor": { "@id": "https://lyusen18.ru/#organization" },
+  "telephone": "+7-993-531-11-72",
+  "email": "info@lyusen18.ru"
+}
+</script>
+
+<!-- Гео-метаданные для рф-локального поиска -->
+<meta name="geo.region" content="RU-UD">
+<meta name="geo.placename" content="Ижевск">
+<meta name="geo.position" content="56.852592;53.211581">
+<meta name="ICBM" content="56.852592, 53.211581">

@@ -1,0 +1,100 @@
+<!--
+  ╔════════════════════════════════════════════════════════╗
+  ║  Базовые стили + шрифты для сайта Люсъен               ║
+  ║                                                        ║
+  ║  Куда вставлять: Настройки страницы → Изменить код HTML║
+  ║  страницы → в секцию <head> (или первым T123-блоком    ║
+  ║  на странице, если такого доступа нет).                ║
+  ║                                                        ║
+  ║  ВСТАВЛЯТЬ ОДИН РАЗ на всю страницу.                   ║
+  ╚════════════════════════════════════════════════════════╝
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --lc-bg:           #FFF6E8;
+    --lc-bg-cream:     #FFEFD9;
+    --lc-bg-soft:      #FFFAF1;
+    --lc-ink:          #15151B;
+    --lc-ink-2:        #2A2A33;
+    --lc-muted:        #6B6B75;
+    --lc-line:         #F1E7D6;
+    --lc-line-2:       #E4D9C5;
+    --lc-orange:       #FF7A1A;
+    --lc-orange-dark:  #E5630A;
+    --lc-yellow:       #FFC42E;
+    --lc-coral:        #FF9088;
+    --lc-pink:         #FFA0B0;
+    --lc-peach:        #FFB37A;
+    --lc-grad-orange:  linear-gradient(135deg, #FF5B0E 0%, #FF8A1A 50%, #FFA928 100%);
+    --lc-grad-yellow:  linear-gradient(180deg, #FFD000 0%, #FF8E14 100%);
+    --lc-grad-hero:    linear-gradient(135deg, #FFF6E8 0%, #FFEAD0 45%, #FFD7B5 100%);
+    --lc-grad-marquee: linear-gradient(90deg, #FFD400 0%, #FF9418 50%, #FFD400 100%);
+    --lc-r:    18px;
+    --lc-r-lg: 28px;
+    --lc-r-xl: 36px;
+    --lc-r-pill: 999px;
+    --lc-shadow:    0 1px 2px rgba(20,20,30,.04), 0 8px 28px rgba(20,20,30,.06);
+    --lc-shadow-lg: 0 1px 2px rgba(20,20,30,.04), 0 20px 56px rgba(255,130,30,.20);
+  }
+
+  /* Базовые сбросы внутри блоков Люсъен */
+  .lc-section { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--lc-ink); -webkit-font-smoothing: antialiased; }
+  .lc-section *, .lc-section *::before, .lc-section *::after { box-sizing: border-box; }
+  .lc-section h1, .lc-section h2, .lc-section h3, .lc-section h4 { margin: 0; color: var(--lc-ink); letter-spacing: -0.025em; line-height: 1.05; font-family: 'Unbounded', 'Manrope', sans-serif; font-weight: 800; }
+  .lc-section h3 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
+  .lc-section p  { margin: 0; }
+  .lc-section ul { margin: 0; padding: 0; list-style: none; }
+  .lc-section a  { color: inherit; text-decoration: none; }
+  .lc-section img { display: block; max-width: 100%; height: auto; }
+  .lc-section button { font-family: inherit; cursor: pointer; }
+
+  .lc-container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  /* Кнопки */
+  .lc-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-weight: 700; line-height: 1;
+    padding: 16px 26px; border-radius: var(--lc-r-pill);
+    border: 1px solid transparent;
+    transition: transform .14s ease, box-shadow .22s ease, background .2s ease;
+    white-space: nowrap;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .lc-btn-primary { background: var(--lc-grad-orange); color: #fff; box-shadow: 0 8px 22px rgba(255,107,28,.34); }
+  .lc-btn-primary:hover { transform: translateY(-1.5px); box-shadow: 0 12px 32px rgba(255,107,28,.46); }
+  .lc-btn-primary:disabled { opacity: .65; cursor: not-allowed; transform: none; box-shadow: none; }
+  .lc-btn-dark { background: var(--lc-ink); color: #fff; }
+  .lc-btn-dark:hover { background: #000; transform: translateY(-1px); }
+  .lc-btn-lg { padding: 19px 32px; font-size: 1.05rem; }
+  .lc-btn-sm { padding: 11px 18px; font-size: .92rem; }
+  .lc-btn-arrow svg { transition: transform .2s; }
+  .lc-btn-arrow:hover svg { transform: translateX(3px); }
+
+  .lc-eyebrow {
+    display: inline-block;
+    font-size: .82rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--lc-orange);
+    padding: 7px 14px; border-radius: var(--lc-r-pill);
+    background: rgba(255,122,26,.10);
+    margin-bottom: 20px;
+  }
+
+  .lc-section-head { max-width: 760px; margin: 0 0 56px; }
+  .lc-section-head h2 { font-size: clamp(2rem, 4.4vw, 3.6rem); margin-bottom: 14px; }
+  .lc-section-head p, .lc-section-sub { color: var(--lc-muted); font-size: 1.08rem; }
+
+  /* Чекбокс согласия (152-ФЗ) */
+  .lc-consent { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 16px; font-size: .85rem; color: var(--lc-muted); line-height: 1.5; cursor: pointer; user-select: none; }
+  .lc-consent input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; border: 1.5px solid var(--lc-line-2); border-radius: 6px; background: #fff; cursor: pointer; position: relative; transition: border-color .15s, background .15s; }
+  .lc-consent input[type="checkbox"]:hover { border-color: var(--lc-orange); }
+  .lc-consent input[type="checkbox"]:checked { background: var(--lc-orange); border-color: var(--lc-orange); }
+  .lc-consent input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 5px; top: 1px; width: 6px; height: 11px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .lc-consent input[type="checkbox"]:focus-visible { outline: 3px solid rgba(255,122,26,.3); outline-offset: 2px; }
+  .lc-consent a { color: var(--lc-orange-dark); font-weight: 600; text-decoration: underline; }
+  .lc-consent a:hover { color: var(--lc-orange); }
+</style>

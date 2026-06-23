@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /privacy
+
+Sitemap: https://lyusen18.ru/sitemap.xml
